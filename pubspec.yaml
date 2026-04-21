@@ -67,8 +67,13 @@ flutter:
     - assets/images/sign up/
     - assets/images/sign in/
     - assets/images/explore/
+    - assets/images/guide_page/
+    - assets/images/new_attractions/
+    - assets/images/tour_detail/
+    - assets/images/trip_information/
     - assets/images/forgot password/
     - assets/images/forgot password_2/
+    - assets/images/tour_share/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
