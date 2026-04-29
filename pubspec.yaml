@@ -75,6 +75,11 @@ flutter:
     - assets/images/forgot password_2/
     - assets/images/tour_share/
     - assets/images/search/
+    - assets/images/home_guide_more/
+    - assets/images/home_tour_more/
+    - assets/images/my_trips_current/
+    - assets/images/my_trips_next/
+    - assets/images/my_trips_past/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../MyTrips/my_trips_current_screen.dart';
 import '../Tour_Detail/tour_detail_screen.dart';
+import 'guide_more_screen.dart';
 import 'guide_detail_screen.dart';
 import '../search/search.dart';
+import 'tour_more_screen.dart';
+import '../widgets/main_bottom_nav.dart';
 
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
@@ -160,7 +164,6 @@ class ExploreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).padding.bottom;
     return Scaffold(
       backgroundColor: _background,
       body: SafeArea(
@@ -177,7 +180,16 @@ class ExploreScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   _buildTopJourneys(),
                   const SizedBox(height: 24),
-                  _buildSectionTitleWithAction('Best Guides'),
+                  _buildSectionTitleWithAction(
+                    'Best Guides',
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const GuideMoreScreen(),
+                        ),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 12),
                   _buildBestGuides(context),
                   const SizedBox(height: 24),
@@ -185,7 +197,16 @@ class ExploreScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   _buildTopExperiences(),
                   const SizedBox(height: 24),
-                  _buildSectionTitleWithAction('Featured Tours'),
+                  _buildSectionTitleWithAction(
+                    'Featured Tours',
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const TourMoreScreen(),
+                        ),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 12),
                   _buildFeaturedTours(context),
                   const SizedBox(height: 24),
@@ -196,7 +217,7 @@ class ExploreScreen extends StatelessWidget {
                 ],
               ),
             ),
-            _buildBottomNav(bottomInset),
+            _buildBottomNav(context),
           ],
         ),
       ),
@@ -873,7 +894,10 @@ class ExploreScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitleWithAction(String title) {
+  Widget _buildSectionTitleWithAction(
+    String title, {
+    VoidCallback? onTap,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
@@ -889,12 +913,15 @@ class ExploreScreen extends StatelessWidget {
               ),
             ),
           ),
-          const Text(
-            'SEE MORE',
-            style: TextStyle(
-              color: _primary,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+          GestureDetector(
+            onTap: onTap,
+            child: Text(
+              'SEE MORE',
+              style: TextStyle(
+                color: onTap == null ? _textSecondary : _primary,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -902,65 +929,16 @@ class ExploreScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomNav(double bottomInset) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(6, 8, 6, bottomInset > 0 ? bottomInset : 8),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.08),
-            blurRadius: 10,
-            offset: Offset(0, -2),
+  Widget _buildBottomNav(BuildContext context) {
+    return MainBottomNav(
+      currentIndex: 0,
+      onTripsTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const MyTripsCurrentScreen(),
           ),
-        ],
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _BottomNavItem(
-            icon: Icons.explore_outlined,
-            label: 'Explore',
-            selected: true,
-          ),
-          _BottomNavItem(icon: Icons.location_on_outlined, label: ''),
-          _BottomNavItem(icon: Icons.chat_bubble_outline, label: ''),
-          _BottomNavItem(icon: Icons.notifications_none, label: ''),
-          _BottomNavItem(icon: Icons.person_outline, label: ''),
-        ],
-      ),
-    );
-  }
-}
-
-class _BottomNavItem extends StatelessWidget {
-  const _BottomNavItem({
-    required this.icon,
-    required this.label,
-    this.selected = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = selected ? const Color(0xFF00C7A7) : const Color(0xFF9E9E9E);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 24, color: color),
-        if (label.isNotEmpty)
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-      ],
+        );
+      },
     );
   }
 }
