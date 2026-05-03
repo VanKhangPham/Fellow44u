@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../search/search.dart';
+import '../Trip/create_new_trip_screen.dart';
 import '../widgets/main_bottom_nav.dart';
 
 class MyTripsCurrentScreen extends StatefulWidget {
@@ -45,6 +46,10 @@ class MyTripsCurrentScreen extends StatefulWidget {
       'assets/images/my_trips_past/d8d1d509c67d429aab24f69d4b7219554c1c69b7.png';
   static const String _pastKhaiHoAsset =
       'assets/images/my_trips_past/67f8ecec96e4799757e73bf4c011c059135b7527.jpg';
+  static const String _wishMelbourneAsset =
+      'assets/images/my_trips_wishlist/e8bbf8e4a3407d7d2ac4e0c6107ed68738f49e92.png';
+  static const String _wishHaLongAsset =
+      'assets/images/my_trips_wishlist/6236a6fc45bbe62cddf36784fcd2767ec32f1972.jpg';
 
   @override
   State<MyTripsCurrentScreen> createState() => _MyTripsCurrentScreenState();
@@ -54,7 +59,7 @@ enum _MyTripsTab { current, next, past, wishList }
 
 class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
   late final List<_NextTripItem> _nextTrips = [
-    const _NextTripItem(
+    _NextTripItem(
       coverAsset: MyTripsCurrentScreen._nextHoGuomAsset,
       title: 'Ho Guom Trip',
       location: 'Hanoi, Vietnam',
@@ -62,10 +67,11 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
       time: '8:00 - 10:00',
       guideLabel: 'Emmy',
       avatars: [MyTripsCurrentScreen._nextEmmyAsset],
+      canChooseAnotherGuide: true,
       showChat: true,
       showPay: true,
     ),
-    const _NextTripItem(
+    _NextTripItem(
       coverAsset: MyTripsCurrentScreen._nextMausoleumAsset,
       title: 'Ho Chi Minh Mausoleum',
       location: 'Hanoi, Vietnam',
@@ -74,8 +80,9 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
       guideLabel: 'Emmy',
       statusLabel: 'Waiting',
       avatars: [MyTripsCurrentScreen._nextEmmyAsset],
+      canChooseAnotherGuide: true,
     ),
-    const _NextTripItem(
+    _NextTripItem(
       coverAsset: MyTripsCurrentScreen._nextChurchAsset,
       title: 'Duc Ba Church',
       location: 'Ho Chi Minh, Vietnam',
@@ -111,6 +118,28 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
       avatarAsset: MyTripsCurrentScreen._pastKhaiHoAsset,
     ),
   ];
+  late final List<_WishTripItem> _wishTrips = [
+    _WishTripItem(
+      coverAsset: MyTripsCurrentScreen._wishMelbourneAsset,
+      title: 'Melbourne - Sydney',
+      date: 'Jan 30, 2020',
+      days: '3 days',
+      price: '\$600.00',
+      likes: '1247 likes',
+      liked: true,
+      bookmarked: true,
+    ),
+    _WishTripItem(
+      coverAsset: MyTripsCurrentScreen._wishHaLongAsset,
+      title: 'Hanoi - Ha Long Bay',
+      date: 'Jan 30, 2020',
+      days: '3 days',
+      price: '\$300.00',
+      likes: '1247 likes',
+      liked: false,
+      bookmarked: true,
+    ),
+  ];
 
   _MyTripsTab _selectedTab = _MyTripsTab.current;
 
@@ -119,7 +148,23 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
     return Scaffold(
       backgroundColor: MyTripsCurrentScreen._background,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(
+            PageRouteBuilder(
+              transitionDuration: const Duration(milliseconds: 220),
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const CreateNewTripScreen(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                final curved = CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOut,
+                );
+                return FadeTransition(opacity: curved, child: child);
+              },
+            ),
+          );
+        },
         backgroundColor: MyTripsCurrentScreen._primary,
         elevation: 2,
         shape: const CircleBorder(),
@@ -247,10 +292,7 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
       case _MyTripsTab.past:
         return _buildPastTripsList();
       case _MyTripsTab.wishList:
-        return _buildPlaceholder(
-          title: 'No saved trips yet',
-          subtitle: 'Trips you bookmark can live here later.',
-        );
+        return _buildWishList();
     }
   }
 
@@ -475,7 +517,25 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
     );
   }
 
+  Widget _buildWishList() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: List.generate(_wishTrips.length, (index) {
+          final item = _wishTrips[index];
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: index == _wishTrips.length - 1 ? 0 : 18,
+            ),
+            child: _buildWishCard(item),
+          );
+        }),
+      ),
+    );
+  }
+
   Widget _buildNextTripCard(_NextTripItem item) {
+    final needsAnotherGuide = item.needsAnotherGuide;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -500,7 +560,7 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                 fit: StackFit.expand,
                 children: [
                   Image.asset(item.coverAsset, fit: BoxFit.cover),
-                  if (item.statusLabel != null)
+                  if (item.statusLabel != null && !needsAnotherGuide)
                     Positioned(
                       left: 12,
                       top: 12,
@@ -607,42 +667,95 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                       const SizedBox(height: 8),
                       _InfoRow(
                         assetPath: MyTripsCurrentScreen._personAsset,
-                        label: item.guideLabel,
+                        label:
+                            needsAnotherGuide
+                                ? 'Choose another Guide'
+                                : item.guideLabel,
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 12),
-                _AvatarCluster(
-                  avatars: item.avatars,
-                  extraCount: item.extraCount,
+                GestureDetector(
+                  onTap:
+                      item.canChooseAnotherGuide && !needsAnotherGuide
+                          ? () {
+                            setState(() {
+                              item.needsAnotherGuide = true;
+                            });
+                          }
+                          : null,
+                  child:
+                      needsAnotherGuide
+                          ? const _ChooseAnotherGuideAvatar()
+                          : _AvatarCluster(
+                            avatars: item.avatars,
+                            extraCount: item.extraCount,
+                          ),
                 ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 10,
-              children: [
-                const _TripActionButton(
-                  icon: Icons.info_outline,
-                  label: 'Detail',
-                ),
-                if (item.showChat)
+          if (needsAnotherGuide)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Row(
+                children: [
                   const _TripActionButton(
-                    icon: Icons.chat_bubble_outline,
-                    label: 'Chat',
+                    icon: Icons.info_outline,
+                    label: 'Detail',
                   ),
-                if (item.showPay)
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SizedBox(
+                      height: 40,
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: MyTripsCurrentScreen._primary,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Choose another Guide',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 10,
+                children: [
                   const _TripActionButton(
-                    icon: Icons.payment_outlined,
-                    label: 'Pay',
+                    icon: Icons.info_outline,
+                    label: 'Detail',
                   ),
-              ],
+                  if (item.showChat)
+                    const _TripActionButton(
+                      icon: Icons.chat_bubble_outline,
+                      label: 'Chat',
+                    ),
+                  if (item.showPay)
+                    const _TripActionButton(
+                      icon: Icons.payment_outlined,
+                      label: 'Pay',
+                    ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -772,53 +885,142 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
     );
   }
 
-  Widget _buildPlaceholder({
-    required String title,
-    required String subtitle,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.06),
-              blurRadius: 14,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            const Icon(
-              Icons.explore_outlined,
-              size: 42,
-              color: MyTripsCurrentScreen._primary,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: MyTripsCurrentScreen._textPrimary,
+  Widget _buildWishCard(_WishTripItem item) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.08),
+            blurRadius: 18,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+            child: SizedBox(
+              height: 136,
+              width: double.infinity,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(item.coverAsset, fit: BoxFit.cover),
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: GestureDetector(
+                      onTap: () => setState(() {
+                        item.bookmarked = !item.bookmarked;
+                      }),
+                      child: Icon(
+                        item.bookmarked
+                            ? Icons.bookmark
+                            : Icons.bookmark_border_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: 12,
+                    bottom: 10,
+                    child: Row(
+                      children: [
+                        ...List.generate(
+                          5,
+                          (_) => const Icon(
+                            Icons.star,
+                            color: Color(0xFFFFC107),
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          item.likes,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                color: MyTripsCurrentScreen._textSecondary,
-                height: 1.5,
-              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item.title,
+                        style: const TextStyle(
+                          color: MyTripsCurrentScreen._textPrimary,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () => setState(() {
+                        item.liked = !item.liked;
+                      }),
+                      child: Icon(
+                        item.liked
+                            ? Icons.favorite
+                            : Icons.favorite_border_rounded,
+                        color: MyTripsCurrentScreen._primary,
+                        size: 24,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _InfoRow(
+                            assetPath: MyTripsCurrentScreen._calendarAsset,
+                            label: item.date,
+                          ),
+                          const SizedBox(height: 8),
+                          _InfoRow(
+                            assetPath: MyTripsCurrentScreen._clockAsset,
+                            label: item.days,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      item.price,
+                      style: const TextStyle(
+                        color: MyTripsCurrentScreen._primary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -1019,8 +1221,31 @@ class _TripAvatar extends StatelessWidget {
   }
 }
 
+class _ChooseAnotherGuideAvatar extends StatelessWidget {
+  const _ChooseAnotherGuideAvatar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 68,
+      height: 68,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: MyTripsCurrentScreen._primary, width: 4),
+      ),
+      child: const Center(
+        child: Icon(
+          Icons.person,
+          color: MyTripsCurrentScreen._primary,
+          size: 34,
+        ),
+      ),
+    );
+  }
+}
+
 class _NextTripItem {
-  const _NextTripItem({
+  _NextTripItem({
     required this.coverAsset,
     required this.title,
     required this.location,
@@ -1028,10 +1253,12 @@ class _NextTripItem {
     required this.time,
     required this.guideLabel,
     required this.avatars,
+    this.canChooseAnotherGuide = false,
     this.statusLabel,
     this.extraCount,
     this.showChat = false,
     this.showPay = false,
+    this.needsAnotherGuide = false,
   });
 
   final String coverAsset;
@@ -1041,10 +1268,12 @@ class _NextTripItem {
   final String time;
   final String guideLabel;
   final List<String> avatars;
+  final bool canChooseAnotherGuide;
   final String? statusLabel;
   final int? extraCount;
   final bool showChat;
   final bool showPay;
+  bool needsAnotherGuide;
 }
 
 class _PastTripItem {
@@ -1065,4 +1294,26 @@ class _PastTripItem {
   final String time;
   final String guideLabel;
   final String avatarAsset;
+}
+
+class _WishTripItem {
+  _WishTripItem({
+    required this.coverAsset,
+    required this.title,
+    required this.date,
+    required this.days,
+    required this.price,
+    required this.likes,
+    required this.liked,
+    required this.bookmarked,
+  });
+
+  final String coverAsset;
+  final String title;
+  final String date;
+  final String days;
+  final String price;
+  final String likes;
+  bool liked;
+  bool bookmarked;
 }
