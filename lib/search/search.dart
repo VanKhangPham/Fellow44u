@@ -1,31 +1,48 @@
 import 'package:flutter/material.dart';
+
+import '../models/destination_model.dart';
+import '../repositories/destination_repository.dart';
+import '../repositories/mock_destination_repository.dart';
 import 'search_results.dart';
 
 class ExploreSearchModal extends StatefulWidget {
-  const ExploreSearchModal({super.key});
+  const ExploreSearchModal({
+    super.key,
+    this.destinationRepository = const MockDestinationRepository(),
+  });
+
+  final DestinationRepository destinationRepository;
 
   @override
   State<ExploreSearchModal> createState() => _ExploreSearchModalState();
 }
 
 class _ExploreSearchModalState extends State<ExploreSearchModal> {
-  final TextEditingController _searchController = TextEditingController();
-
   static const Color _primary = Color(0xFF00C7A7);
   static const Color _textPrimary = Color(0xFF212121);
   static const Color _textSecondary = Color(0xFF777777);
 
-  // Danh sách địa điểm phổ biến
-  static const List<String> _popularDestinations = [
-    'Danang, Vietnam',
-    'Ho Chi Minh, Vietnam',
-    'Venice, Italy',
-  ];
+  final TextEditingController _searchController = TextEditingController();
+  late Future<List<DestinationModel>> _destinationsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _destinationsFuture = widget.destinationRepository.fetchPopularDestinations();
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _reload() {
+    setState(() {
+      _destinationsFuture = widget.destinationRepository.searchDestinations(
+        _searchController.text,
+      );
+    });
   }
 
   @override
@@ -36,7 +53,6 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
         bottom: false,
         child: Column(
           children: [
-            // Header với nút Close
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: Row(
@@ -54,9 +70,9 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
                     child: TextField(
                       controller: _searchController,
                       autofocus: true,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: 'Where you want to explore',
-                        hintStyle: const TextStyle(
+                        hintStyle: TextStyle(
                           color: Color(0xFFBDBDBD),
                           fontSize: 16,
                         ),
@@ -64,20 +80,33 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
                         contentPadding: EdgeInsets.zero,
                       ),
                       style: const TextStyle(fontSize: 16, color: _textPrimary),
-                      onChanged: (value) {
-                        setState(() {});
-                      },
+                      onChanged: (_) => _reload(),
                     ),
                   ),
                 ],
               ),
             ),
             const Divider(height: 1, color: Color(0xFFE0E0E0)),
-            // Danh sách địa điểm
             Expanded(
-              child: _searchController.text.isEmpty
-                  ? _buildPopularDestinations()
-                  : _buildSearchResults(),
+              child: FutureBuilder<List<DestinationModel>>(
+                future: _destinationsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: _primary),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return _buildErrorState();
+                  }
+
+                  final destinations = snapshot.data ?? const <DestinationModel>[];
+                  return _searchController.text.isEmpty
+                      ? _buildPopularDestinations(destinations)
+                      : _buildSearchResults(destinations);
+                },
+              ),
             ),
           ],
         ),
@@ -85,7 +114,34 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
     );
   }
 
-  Widget _buildPopularDestinations() {
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Unable to load destinations',
+            style: TextStyle(
+              color: _textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: _reload,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _primary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('RETRY'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPopularDestinations(List<DestinationModel> destinations) {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
@@ -99,27 +155,14 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
           ),
         ),
         const SizedBox(height: 16),
-        ..._popularDestinations.map((destination) {
-          return _DestinationTile(
-            destination: destination,
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => SearchResultsScreen(
-                    destination: destination,
-                  ),
-                ),
-              );
-            },
-          );
-        }).toList(),
+        ...destinations.map(_buildDestinationTile),
       ],
     );
   }
 
-  Widget _buildSearchResults() {
-    final results = _popularDestinations
-        .where((destination) => destination
+  Widget _buildSearchResults(List<DestinationModel> destinations) {
+    final results = destinations
+        .where((destination) => destination.name
             .toLowerCase()
             .contains(_searchController.text.toLowerCase()))
         .toList();
@@ -128,13 +171,13 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
+          children: const [
+            Icon(
               Icons.location_off_outlined,
               size: 48,
               color: Color(0xFFBDBDBD),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               'No results found',
               style: TextStyle(
@@ -151,33 +194,35 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
         const SizedBox(height: 16),
-        ...results.map((destination) {
-          return _DestinationTile(
-            destination: destination,
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => SearchResultsScreen(
-                    destination: destination,
-                  ),
-                ),
-              );
-            },
-          );
-        }).toList(),
+        ...results.map(_buildDestinationTile),
       ],
+    );
+  }
+
+  Widget _buildDestinationTile(DestinationModel destination) {
+    return _DestinationTile(
+      destination: destination.name,
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => SearchResultsScreen(
+              destination: destination.name,
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
 class _DestinationTile extends StatelessWidget {
-  final String destination;
-  final VoidCallback onTap;
-
   const _DestinationTile({
     required this.destination,
     required this.onTap,
   });
+
+  final String destination;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +240,10 @@ class _DestinationTile extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               destination,
-              style: const TextStyle(fontSize: 16, color: Color(0xFF212121)),
+              style: const TextStyle(
+                fontSize: 16,
+                color: Color(0xFF212121),
+              ),
             ),
           ],
         ),

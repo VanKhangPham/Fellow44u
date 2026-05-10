@@ -1,109 +1,37 @@
 import 'package:flutter/material.dart';
 
+import '../models/guide_model.dart';
+import '../repositories/guide_repository.dart';
+import '../repositories/mock_guide_repository.dart';
 import '../search/search.dart';
 import 'explore_more_header.dart';
 import 'guide_detail_screen.dart';
 
-class GuideMoreScreen extends StatelessWidget {
-  const GuideMoreScreen({super.key});
+class GuideMoreScreen extends StatefulWidget {
+  const GuideMoreScreen({
+    super.key,
+    this.repository = const MockGuideRepository(),
+  });
 
+  final GuideRepository repository;
+
+  @override
+  State<GuideMoreScreen> createState() => _GuideMoreScreenState();
+}
+
+class _GuideMoreScreenState extends State<GuideMoreScreen> {
   static const Color _primary = Color(0xFF00C7A7);
   static const Color _textPrimary = Color(0xFF212121);
   static const Color _background = Color(0xFFFDFDFD);
-
   static const String _heroAsset =
       'assets/images/home_guide_more/536d2c710563ff68867dc5f6481dcfafe2bfeb33.png';
 
-  static const List<_GuideMoreItem> _guides = [
-    _GuideMoreItem(
-      imagePath:
-          'assets/images/home_guide_more/4293a86720d50b28e6ad1b224c2db9f92d54d9d5.jpg',
-      name: 'Tuan Tran',
-      location: 'Danang, Vietnam',
-      reviews: '127 Reviews',
-    ),
-    _GuideMoreItem(
-      imagePath:
-          'assets/images/home_guide_more/d8d1d509c67d429aab24f69d4b7219554c1c69b7.png',
-      name: 'Emmy',
-      location: 'Hanoi, Vietnam',
-      reviews: '129 Reviews',
-    ),
-    _GuideMoreItem(
-      imagePath:
-          'assets/images/home_guide_more/fc207b73626f5125383e54e4f9bd8e50563101a4.jpg',
-      name: 'Linh Hana',
-      location: 'Danang, Vietnam',
-      reviews: '127 Reviews',
-    ),
-    _GuideMoreItem(
-      imagePath:
-          'assets/images/home_guide_more/67f8ecec96e4799757e73bf4c011c059135b7527.jpg',
-      name: 'Khai Ho',
-      location: 'Ho Chi Minh, Vietnam',
-      reviews: '127 Reviews',
-    ),
-    _GuideMoreItem(
-      imagePath:
-          'assets/images/home_guide_more/4293a86720d50b28e6ad1b224c2db9f92d54d9d5.jpg',
-      name: 'Tuan Tran',
-      location: 'Danang, Vietnam',
-      reviews: '127 Reviews',
-    ),
-    _GuideMoreItem(
-      imagePath:
-          'assets/images/home_guide_more/d8d1d509c67d429aab24f69d4b7219554c1c69b7.png',
-      name: 'Emmy',
-      location: 'Hanoi, Vietnam',
-      reviews: '129 Reviews',
-    ),
-    _GuideMoreItem(
-      imagePath:
-          'assets/images/home_guide_more/fc207b73626f5125383e54e4f9bd8e50563101a4.jpg',
-      name: 'Linh Hana',
-      location: 'Danang, Vietnam',
-      reviews: '127 Reviews',
-    ),
-    _GuideMoreItem(
-      imagePath:
-          'assets/images/home_guide_more/67f8ecec96e4799757e73bf4c011c059135b7527.jpg',
-      name: 'Khai Ho',
-      location: 'Ho Chi Minh, Vietnam',
-      reviews: '127 Reviews',
-    ),
-  ];
+  late Future<List<GuideModel>> _guidesFuture;
 
   @override
-  Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).padding.bottom;
-    return Scaffold(
-      backgroundColor: _background,
-      body: SafeArea(
-        bottom: false,
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            ExploreMoreHeader(
-              heroAsset: _heroAsset,
-              title: 'Book your own private local Guide and explore the city',
-              onBack: () => Navigator.of(context).pop(),
-              onSearchTap: () => _openSearch(context),
-            ),
-            const SizedBox(height: 10),
-            _buildGuidesGrid(context),
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                16,
-                6,
-                16,
-                bottomInset > 0 ? bottomInset + 12 : 24,
-              ),
-              child: const ExploreMoreIndicator(),
-            ),
-          ],
-        ),
-      ),
-    );
+  void initState() {
+    super.initState();
+    _guidesFuture = widget.repository.fetchAllGuides();
   }
 
   void _openSearch(BuildContext context) {
@@ -114,13 +42,58 @@ class GuideMoreScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildGuidesGrid(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+    return Scaffold(
+      backgroundColor: _background,
+      body: SafeArea(
+        bottom: false,
+        child: FutureBuilder<List<GuideModel>>(
+          future: _guidesFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(
+                child: CircularProgressIndicator(color: _primary),
+              );
+            }
+
+            final guides = snapshot.data ?? const <GuideModel>[];
+            return ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                ExploreMoreHeader(
+                  heroAsset: _heroAsset,
+                  title: 'Book your own private local Guide and explore the city',
+                  onBack: () => Navigator.of(context).pop(),
+                  onSearchTap: () => _openSearch(context),
+                ),
+                const SizedBox(height: 10),
+                _buildGuidesGrid(context, guides),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    6,
+                    16,
+                    bottomInset > 0 ? bottomInset + 12 : 24,
+                  ),
+                  child: const ExploreMoreIndicator(),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuidesGrid(BuildContext context, List<GuideModel> guides) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: _guides.length,
+        itemCount: guides.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 14,
@@ -128,16 +101,12 @@ class GuideMoreScreen extends StatelessWidget {
           mainAxisExtent: 242,
         ),
         itemBuilder: (context, index) {
-          final guide = _guides[index];
+          final guide = guides[index];
           return GestureDetector(
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => GuideDetailScreen(
-                    name: guide.name,
-                    imagePath: guide.imagePath,
-                    location: guide.location,
-                  ),
+                  builder: (context) => GuideDetailScreen(guideId: guide.id),
                 ),
               );
             },
@@ -149,7 +118,7 @@ class GuideMoreScreen extends StatelessWidget {
                   child: Stack(
                     children: [
                       Image.asset(
-                        guide.imagePath,
+                        guide.avatarPath,
                         width: double.infinity,
                         height: 164,
                         fit: BoxFit.cover,
@@ -186,7 +155,7 @@ class GuideMoreScreen extends StatelessWidget {
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
-                                guide.reviews,
+                                '${guide.reviewsCount} Reviews',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,
@@ -221,7 +190,6 @@ class GuideMoreScreen extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 12,
                           color: _primary,
-                          fontWeight: FontWeight.w500,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -235,18 +203,4 @@ class GuideMoreScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class _GuideMoreItem {
-  const _GuideMoreItem({
-    required this.imagePath,
-    required this.name,
-    required this.location,
-    required this.reviews,
-  });
-
-  final String imagePath;
-  final String name;
-  final String location;
-  final String reviews;
 }

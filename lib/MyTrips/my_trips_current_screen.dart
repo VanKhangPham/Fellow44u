@@ -1,55 +1,29 @@
 import 'package:flutter/material.dart';
 
-import '../search/search.dart';
 import '../Trip/create_new_trip_screen.dart';
+import '../data/mock/mock_my_trips_data.dart';
+import '../models/my_current_trip_model.dart';
+import '../models/my_next_trip_model.dart';
+import '../models/my_past_trip_model.dart';
+import '../models/my_trips_data.dart';
+import '../models/wishlist_trip_model.dart';
+import '../repositories/mock_my_trips_repository.dart';
+import '../repositories/my_trips_repository.dart';
+import '../search/search.dart';
 import '../widgets/main_bottom_nav.dart';
 
 class MyTripsCurrentScreen extends StatefulWidget {
-  const MyTripsCurrentScreen({super.key});
+  const MyTripsCurrentScreen({
+    super.key,
+    this.repository = const MockMyTripsRepository(),
+  });
 
-  static const Color _primary = Color(0xFF00C7A7);
-  static const Color _textPrimary = Color(0xFF212121);
-  static const Color _textSecondary = Color(0xFF6F6F6F);
-  static const Color _background = Color(0xFFFBFBFB);
+  static const Color primary = Color(0xFF00C7A7);
+  static const Color textPrimary = Color(0xFF212121);
+  static const Color textSecondary = Color(0xFF6F6F6F);
+  static const Color background = Color(0xFFFBFBFB);
 
-  static const String _headerAsset =
-      'assets/images/my_trips_current/2a4028cfda3cda6d2d71eef70a4cdc292c82b02c.png';
-  static const String _tripAsset =
-      'assets/images/my_trips_current/51414a035e8038967a7f919ee4da7a5fcf080c96.jpg';
-  static const String _avatarAsset =
-      'assets/images/my_trips_current/4293a86720d50b28e6ad1b224c2db9f92d54d9d5.jpg';
-  static const String _calendarAsset =
-      'assets/images/my_trips_current/Frame 26.png';
-  static const String _clockAsset =
-      'assets/images/my_trips_current/Frame 37.png';
-  static const String _personAsset = 'assets/images/my_trips_current/Group.png';
-  static const String _checkAsset =
-      'assets/images/my_trips_current/Vector.png';
-
-  static const String _nextHoGuomAsset =
-      'assets/images/my_trips_next/960a939280f3f36fc0c105ffe4ad31d968ac6451.png';
-  static const String _nextMausoleumAsset =
-      'assets/images/my_trips_next/accb51ccbb0a22aae14c9e1af900ffe62bc5f983.png';
-  static const String _nextChurchAsset =
-      'assets/images/my_trips_next/a4ac4c80eecaa270b09aca98f13878ecf0eaca85.jpg';
-  static const String _nextEmmyAsset =
-      'assets/images/my_trips_next/d8d1d509c67d429aab24f69d4b7219554c1c69b7.png';
-  static const String _nextKhaiHoAsset =
-      'assets/images/my_trips_next/67f8ecec96e4799757e73bf4c011c059135b7527.jpg';
-  static const String _nextExtraGuideAsset =
-      'assets/images/my_trips_next/f70235434dd80443d892bdaed7f8c67bdf755753.jpg';
-  static const String _pastTempleAsset =
-      'assets/images/my_trips_past/0270b73aa10450750a134687fa6ecfa0700ef0ef.jpg';
-  static const String _pastPalaceAsset =
-      'assets/images/my_trips_past/b529f8c33726fe420d25c7305deae6b5c3852207.jpg';
-  static const String _pastEmmyAsset =
-      'assets/images/my_trips_past/d8d1d509c67d429aab24f69d4b7219554c1c69b7.png';
-  static const String _pastKhaiHoAsset =
-      'assets/images/my_trips_past/67f8ecec96e4799757e73bf4c011c059135b7527.jpg';
-  static const String _wishMelbourneAsset =
-      'assets/images/my_trips_wishlist/e8bbf8e4a3407d7d2ac4e0c6107ed68738f49e92.png';
-  static const String _wishHaLongAsset =
-      'assets/images/my_trips_wishlist/6236a6fc45bbe62cddf36784fcd2767ec32f1972.jpg';
+  final MyTripsRepository repository;
 
   @override
   State<MyTripsCurrentScreen> createState() => _MyTripsCurrentScreenState();
@@ -58,95 +32,22 @@ class MyTripsCurrentScreen extends StatefulWidget {
 enum _MyTripsTab { current, next, past, wishList }
 
 class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
-  late final List<_NextTripItem> _nextTrips = [
-    _NextTripItem(
-      coverAsset: MyTripsCurrentScreen._nextHoGuomAsset,
-      title: 'Ho Guom Trip',
-      location: 'Hanoi, Vietnam',
-      date: 'Feb 2, 2020',
-      time: '8:00 - 10:00',
-      guideLabel: 'Emmy',
-      avatars: [MyTripsCurrentScreen._nextEmmyAsset],
-      canChooseAnotherGuide: true,
-      showChat: true,
-      showPay: true,
-    ),
-    _NextTripItem(
-      coverAsset: MyTripsCurrentScreen._nextMausoleumAsset,
-      title: 'Ho Chi Minh Mausoleum',
-      location: 'Hanoi, Vietnam',
-      date: 'Feb 2, 2020',
-      time: '8:00 - 10:00',
-      guideLabel: 'Emmy',
-      statusLabel: 'Waiting',
-      avatars: [MyTripsCurrentScreen._nextEmmyAsset],
-      canChooseAnotherGuide: true,
-    ),
-    _NextTripItem(
-      coverAsset: MyTripsCurrentScreen._nextChurchAsset,
-      title: 'Duc Ba Church',
-      location: 'Ho Chi Minh, Vietnam',
-      date: 'Feb 2, 2020',
-      time: '8:00 - 10:00',
-      guideLabel: 'Waiting for offers',
-      statusLabel: 'Bidding',
-      avatars: [
-        MyTripsCurrentScreen._nextKhaiHoAsset,
-        MyTripsCurrentScreen._nextExtraGuideAsset,
-      ],
-      extraCount: 3,
-      showChat: true,
-    ),
-  ];
-  late final List<_PastTripItem> _pastTrips = [
-    const _PastTripItem(
-      coverAsset: MyTripsCurrentScreen._pastTempleAsset,
-      title: 'Quoc Tu Giam Temple',
-      location: 'Hanoi, Vietnam',
-      date: 'Feb 2, 2020',
-      time: '8:00 - 10:00',
-      guideLabel: 'Emmy',
-      avatarAsset: MyTripsCurrentScreen._pastEmmyAsset,
-    ),
-    const _PastTripItem(
-      coverAsset: MyTripsCurrentScreen._pastPalaceAsset,
-      title: 'Dinh Doc Lap',
-      location: 'Ho Chi Minh, Vietnam',
-      date: 'Feb 2, 2020',
-      time: '8:00 - 10:00',
-      guideLabel: 'Khai Ho',
-      avatarAsset: MyTripsCurrentScreen._pastKhaiHoAsset,
-    ),
-  ];
-  late final List<_WishTripItem> _wishTrips = [
-    _WishTripItem(
-      coverAsset: MyTripsCurrentScreen._wishMelbourneAsset,
-      title: 'Melbourne - Sydney',
-      date: 'Jan 30, 2020',
-      days: '3 days',
-      price: '\$600.00',
-      likes: '1247 likes',
-      liked: true,
-      bookmarked: true,
-    ),
-    _WishTripItem(
-      coverAsset: MyTripsCurrentScreen._wishHaLongAsset,
-      title: 'Hanoi - Ha Long Bay',
-      date: 'Jan 30, 2020',
-      days: '3 days',
-      price: '\$300.00',
-      likes: '1247 likes',
-      liked: false,
-      bookmarked: true,
-    ),
-  ];
-
   _MyTripsTab _selectedTab = _MyTripsTab.current;
+  late Future<MyTripsData> _tripsFuture;
+  final Set<String> _likedWishlistIds = <String>{};
+  final Set<String> _bookmarkedWishlistIds = <String>{};
+  final Set<String> _needAnotherGuideIds = <String>{};
+
+  @override
+  void initState() {
+    super.initState();
+    _tripsFuture = widget.repository.fetchMyTrips();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyTripsCurrentScreen._background,
+      backgroundColor: MyTripsCurrentScreen.background,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
@@ -165,33 +66,56 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
             ),
           );
         },
-        backgroundColor: MyTripsCurrentScreen._primary,
+        backgroundColor: MyTripsCurrentScreen.primary,
         elevation: 2,
         shape: const CircleBorder(),
         child: const Icon(Icons.add, size: 38, color: Colors.white),
       ),
       body: SafeArea(
         bottom: false,
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  _buildHeader(context),
-                  const SizedBox(height: 10),
-                  _buildTabs(),
-                  const SizedBox(height: 26),
-                  _buildSelectedTabBody(),
-                  const SizedBox(height: 110),
-                ],
-              ),
-            ),
-            MainBottomNav(
-              currentIndex: 1,
-              onExploreTap: () => Navigator.of(context).pop(),
-            ),
-          ],
+        child: FutureBuilder<MyTripsData>(
+          future: _tripsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: MyTripsCurrentScreen.primary,
+                ),
+              );
+            }
+
+            final data = snapshot.data;
+            if (data == null) {
+              return const Center(
+                child: Text(
+                  'Trips unavailable',
+                  style: TextStyle(color: MyTripsCurrentScreen.textPrimary),
+                ),
+              );
+            }
+
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      _buildHeader(context),
+                      const SizedBox(height: 10),
+                      _buildTabs(),
+                      const SizedBox(height: 26),
+                      _buildSelectedTabBody(data),
+                      const SizedBox(height: 110),
+                    ],
+                  ),
+                ),
+                MainBottomNav(
+                  currentIndex: 1,
+                  onExploreTap: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -203,7 +127,7 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(MyTripsCurrentScreen._headerAsset, fit: BoxFit.cover),
+          Image.asset(myTripsCurrentHeaderAsset, fit: BoxFit.cover),
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -216,12 +140,12 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
               ),
             ),
           ),
-          Positioned(
+          const Positioned(
             left: 18,
             bottom: 18,
             child: Text(
               'My Trips',
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontSize: 28,
                 fontWeight: FontWeight.w500,
@@ -246,6 +170,14 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _openSearch(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => const ExploreSearchModal(),
     );
   }
 
@@ -283,20 +215,20 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
     );
   }
 
-  Widget _buildSelectedTabBody() {
+  Widget _buildSelectedTabBody(MyTripsData data) {
     switch (_selectedTab) {
       case _MyTripsTab.current:
-        return _buildCurrentTripCard();
+        return _buildCurrentTripCard(data.currentTrip);
       case _MyTripsTab.next:
-        return _buildNextTripsList();
+        return _buildNextTripsList(data.nextTrips);
       case _MyTripsTab.past:
-        return _buildPastTripsList();
+        return _buildPastTripsList(data.pastTrips);
       case _MyTripsTab.wishList:
-        return _buildWishList();
+        return _buildWishList(data.wishlistTrips);
     }
   }
 
-  Widget _buildCurrentTripCard() {
+  Widget _buildCurrentTripCard(MyCurrentTripModel trip) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -322,10 +254,7 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.asset(
-                      MyTripsCurrentScreen._tripAsset,
-                      fit: BoxFit.cover,
-                    ),
+                    Image.asset(trip.coverAsset, fit: BoxFit.cover),
                     Positioned(
                       left: 16,
                       top: 18,
@@ -345,7 +274,7 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Image.asset(
-                              MyTripsCurrentScreen._checkAsset,
+                              myTripsCurrentCheckAsset,
                               width: 14,
                               height: 11,
                             ),
@@ -353,7 +282,7 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                             const Text(
                               'Mark Finished',
                               style: TextStyle(
-                                color: MyTripsCurrentScreen._textPrimary,
+                                color: MyTripsCurrentScreen.textPrimary,
                                 fontSize: 14,
                               ),
                             ),
@@ -373,18 +302,18 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                           color: const Color.fromRGBO(0, 0, 0, 0.36),
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.location_on,
                               color: Colors.white,
                               size: 16,
                             ),
-                            SizedBox(width: 4),
+                            const SizedBox(width: 4),
                             Text(
-                              'Da Nang, Vietnam',
-                              style: TextStyle(
+                              trip.location,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
@@ -407,36 +336,36 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Dragon Bridge Trip',
-                          style: TextStyle(
-                            color: MyTripsCurrentScreen._textPrimary,
+                        Text(
+                          trip.title,
+                          style: const TextStyle(
+                            color: MyTripsCurrentScreen.textPrimary,
                             fontSize: 17,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         const SizedBox(height: 10),
-                        const _InfoRow(
-                          assetPath: MyTripsCurrentScreen._calendarAsset,
-                          label: 'Jan 30, 2020',
+                        _InfoRow(
+                          assetPath: myTripsCurrentCalendarAsset,
+                          label: trip.dateLabel,
                         ),
                         const SizedBox(height: 8),
-                        const _InfoRow(
-                          assetPath: MyTripsCurrentScreen._clockAsset,
-                          label: '13:00 - 15:00',
+                        _InfoRow(
+                          assetPath: myTripsCurrentClockAsset,
+                          label: trip.timeLabel,
                         ),
                         const SizedBox(height: 8),
-                        const _InfoRow(
-                          assetPath: MyTripsCurrentScreen._personAsset,
-                          label: 'Tuan Tran',
+                        _InfoRow(
+                          assetPath: myTripsCurrentPersonAsset,
+                          label: trip.guideName,
                         ),
                         const SizedBox(height: 16),
                         OutlinedButton.icon(
                           onPressed: () {},
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: MyTripsCurrentScreen._primary,
+                            foregroundColor: MyTripsCurrentScreen.primary,
                             side: const BorderSide(
-                              color: MyTripsCurrentScreen._primary,
+                              color: MyTripsCurrentScreen.primary,
                             ),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
@@ -464,14 +393,13 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: MyTripsCurrentScreen._primary,
+                        color: MyTripsCurrentScreen.primary,
                         width: 4,
                       ),
                     ),
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 30,
-                      backgroundImage:
-                          AssetImage(MyTripsCurrentScreen._avatarAsset),
+                      backgroundImage: AssetImage(trip.guideAvatarAsset),
                     ),
                   ),
                 ],
@@ -483,59 +411,24 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
     );
   }
 
-  Widget _buildNextTripsList() {
+  Widget _buildNextTripsList(List<MyNextTripModel> trips) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        children: List.generate(_nextTrips.length, (index) {
-          final item = _nextTrips[index];
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: index == _nextTrips.length - 1 ? 0 : 18,
-            ),
-            child: _buildNextTripCard(item),
-          );
-        }),
+        children: trips
+            .map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 18),
+                child: _buildNextTripCard(item),
+              ),
+            )
+            .toList(),
       ),
     );
   }
 
-  Widget _buildPastTripsList() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: List.generate(_pastTrips.length, (index) {
-          final item = _pastTrips[index];
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: index == _pastTrips.length - 1 ? 0 : 18,
-            ),
-            child: _buildPastTripCard(item),
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget _buildWishList() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: List.generate(_wishTrips.length, (index) {
-          final item = _wishTrips[index];
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: index == _wishTrips.length - 1 ? 0 : 18,
-            ),
-            child: _buildWishCard(item),
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget _buildNextTripCard(_NextTripItem item) {
-    final needsAnotherGuide = item.needsAnotherGuide;
+  Widget _buildNextTripCard(MyNextTripModel item) {
+    final needsAnotherGuide = _needAnotherGuideIds.contains(item.id);
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -543,8 +436,8 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
         boxShadow: const [
           BoxShadow(
             color: Color.fromRGBO(0, 0, 0, 0.08),
-            blurRadius: 18,
-            offset: Offset(0, 6),
+            blurRadius: 16,
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -553,215 +446,140 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-            child: SizedBox(
-              height: 136,
-              width: double.infinity,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(item.coverAsset, fit: BoxFit.cover),
-                  if (item.statusLabel != null && !needsAnotherGuide)
-                    Positioned(
-                      left: 12,
-                      top: 12,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color.fromRGBO(157, 166, 177, 0.82),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          item.statusLabel!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
+            child: Stack(
+              children: [
+                Image.asset(
+                  item.coverAsset,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 150,
+                ),
+                if (item.statusLabel != null && !needsAnotherGuide)
                   Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: const Color.fromRGBO(0, 0, 0, 0.35),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.more_horiz,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 14,
-                    bottom: 12,
+                    left: 16,
+                    top: 14,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                        horizontal: 12,
+                        vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color.fromRGBO(0, 0, 0, 0.36),
+                        color: const Color.fromRGBO(255, 255, 255, 0.85),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.location_on,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            item.location,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        item.statusLabel!,
+                        style: const TextStyle(
+                          color: MyTripsCurrentScreen.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            child: Row(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.title,
-                        style: const TextStyle(
-                          color: MyTripsCurrentScreen._textPrimary,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      _InfoRow(
-                        assetPath: MyTripsCurrentScreen._calendarAsset,
-                        label: item.date,
-                      ),
-                      const SizedBox(height: 8),
-                      _InfoRow(
-                        assetPath: MyTripsCurrentScreen._clockAsset,
-                        label: item.time,
-                      ),
-                      const SizedBox(height: 8),
-                      _InfoRow(
-                        assetPath: MyTripsCurrentScreen._personAsset,
-                        label:
-                            needsAnotherGuide
-                                ? 'Choose another Guide'
-                                : item.guideLabel,
-                      ),
-                    ],
+                Text(
+                  item.title,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: MyTripsCurrentScreen.textPrimary,
                   ),
                 ),
-                const SizedBox(width: 12),
-                GestureDetector(
-                  onTap:
-                      item.canChooseAnotherGuide && !needsAnotherGuide
-                          ? () {
-                            setState(() {
-                              item.needsAnotherGuide = true;
-                            });
-                          }
-                          : null,
-                  child:
-                      needsAnotherGuide
-                          ? const _ChooseAnotherGuideAvatar()
-                          : _AvatarCluster(
-                            avatars: item.avatars,
-                            extraCount: item.extraCount,
-                          ),
+                const SizedBox(height: 8),
+                Text(
+                  item.location,
+                  style: const TextStyle(
+                    color: MyTripsCurrentScreen.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _InfoRow(
+                  assetPath: myTripsCurrentCalendarAsset,
+                  label: item.dateLabel,
+                ),
+                const SizedBox(height: 8),
+                _InfoRow(
+                  assetPath: myTripsCurrentClockAsset,
+                  label: item.timeLabel,
+                ),
+                const SizedBox(height: 8),
+                _InfoRow(
+                  assetPath: myTripsCurrentPersonAsset,
+                  label: needsAnotherGuide ? 'Choose another guide' : item.guideLabel,
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    _AvatarCluster(
+                      avatars: item.avatars,
+                      extraCount: item.extraCount,
+                      needsAnotherGuide: needsAnotherGuide,
+                    ),
+                    const Spacer(),
+                    if (item.canChooseAnotherGuide)
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            if (needsAnotherGuide) {
+                              _needAnotherGuideIds.remove(item.id);
+                            } else {
+                              _needAnotherGuideIds.add(item.id);
+                            }
+                          });
+                        },
+                        child: const Text('Choose another guide'),
+                      ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    if (item.showChat)
+                      _TripActionButton(
+                        label: 'Chat',
+                        outlined: true,
+                        onPressed: () {},
+                      ),
+                    if (item.showChat) const SizedBox(width: 10),
+                    if (item.showPay)
+                      _TripActionButton(
+                        label: 'Pay',
+                        onPressed: () {},
+                      ),
+                  ],
                 ),
               ],
             ),
           ),
-          if (needsAnotherGuide)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Row(
-                children: [
-                  const _TripActionButton(
-                    icon: Icons.info_outline,
-                    label: 'Detail',
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: SizedBox(
-                      height: 40,
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: MyTripsCurrentScreen._primary,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'Choose another Guide',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          else
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Wrap(
-                spacing: 12,
-                runSpacing: 10,
-                children: [
-                  const _TripActionButton(
-                    icon: Icons.info_outline,
-                    label: 'Detail',
-                  ),
-                  if (item.showChat)
-                    const _TripActionButton(
-                      icon: Icons.chat_bubble_outline,
-                      label: 'Chat',
-                    ),
-                  if (item.showPay)
-                    const _TripActionButton(
-                      icon: Icons.payment_outlined,
-                      label: 'Pay',
-                    ),
-                ],
-              ),
-            ),
         ],
       ),
     );
   }
 
-  Widget _buildPastTripCard(_PastTripItem item) {
+  Widget _buildPastTripsList(List<MyPastTripModel> trips) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: trips
+            .map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 18),
+                child: _buildPastTripCard(item),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildPastTripCard(MyPastTripModel item) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -769,8 +587,8 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
         boxShadow: const [
           BoxShadow(
             color: Color.fromRGBO(0, 0, 0, 0.08),
-            blurRadius: 18,
-            offset: Offset(0, 6),
+            blurRadius: 16,
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -779,69 +597,15 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-            child: SizedBox(
-              height: 136,
+            child: Image.asset(
+              item.coverAsset,
+              fit: BoxFit.cover,
               width: double.infinity,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(item.coverAsset, fit: BoxFit.cover),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: const Color.fromRGBO(0, 0, 0, 0.35),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.more_horiz,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 14,
-                    bottom: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color.fromRGBO(0, 0, 0, 0.36),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.location_on,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            item.location,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              height: 150,
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -852,31 +616,42 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                       Text(
                         item.title,
                         style: const TextStyle(
-                          color: MyTripsCurrentScreen._textPrimary,
                           fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          color: MyTripsCurrentScreen.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        item.location,
+                        style: const TextStyle(
+                          color: MyTripsCurrentScreen.primary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 10),
                       _InfoRow(
-                        assetPath: MyTripsCurrentScreen._calendarAsset,
-                        label: item.date,
+                        assetPath: myTripsCurrentCalendarAsset,
+                        label: item.dateLabel,
                       ),
                       const SizedBox(height: 8),
                       _InfoRow(
-                        assetPath: MyTripsCurrentScreen._clockAsset,
-                        label: item.time,
+                        assetPath: myTripsCurrentClockAsset,
+                        label: item.timeLabel,
                       ),
                       const SizedBox(height: 8),
                       _InfoRow(
-                        assetPath: MyTripsCurrentScreen._personAsset,
+                        assetPath: myTripsCurrentPersonAsset,
                         label: item.guideLabel,
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 12),
-                _TripAvatar(assetPath: item.avatarAsset),
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: AssetImage(item.avatarAsset),
+                ),
               ],
             ),
           ),
@@ -885,7 +660,27 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
     );
   }
 
-  Widget _buildWishCard(_WishTripItem item) {
+  Widget _buildWishList(List<WishlistTripModel> items) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: items
+            .map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 18),
+                child: _buildWishlistCard(item),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildWishlistCard(WishlistTripModel item) {
+    final isLiked = _likedWishlistIds.contains(item.id) || item.isLiked;
+    final isBookmarked =
+        _bookmarkedWishlistIds.contains(item.id) || item.isBookmarked;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -893,8 +688,8 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
         boxShadow: const [
           BoxShadow(
             color: Color.fromRGBO(0, 0, 0, 0.08),
-            blurRadius: 18,
-            offset: Offset(0, 6),
+            blurRadius: 16,
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -903,133 +698,105 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-            child: SizedBox(
-              height: 136,
-              width: double.infinity,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(item.coverAsset, fit: BoxFit.cover),
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: GestureDetector(
-                      onTap: () => setState(() {
-                        item.bookmarked = !item.bookmarked;
-                      }),
-                      child: Icon(
-                        item.bookmarked
-                            ? Icons.bookmark
-                            : Icons.bookmark_border_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
+            child: Stack(
+              children: [
+                Image.asset(
+                  item.coverAsset,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 150,
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isBookmarked) {
+                          _bookmarkedWishlistIds.remove(item.id);
+                        } else {
+                          _bookmarkedWishlistIds.add(item.id);
+                        }
+                      });
+                    },
+                    child: Icon(
+                      isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                      color: Colors.white,
                     ),
                   ),
-                  Positioned(
-                    left: 12,
-                    bottom: 10,
-                    child: Row(
-                      children: [
-                        ...List.generate(
-                          5,
-                          (_) => const Icon(
-                            Icons.star,
-                            color: Color(0xFFFFC107),
-                            size: 16,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          item.likes,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
+                ),
+                Positioned(
+                  left: 12,
+                  bottom: 12,
+                  child: Text(
+                    item.likesLabel,
+                    style: const TextStyle(color: Colors.white),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Text(
                         item.title,
                         style: const TextStyle(
-                          color: MyTripsCurrentScreen._textPrimary,
                           fontSize: 17,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
+                          color: MyTripsCurrentScreen.textPrimary,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
                     GestureDetector(
-                      onTap: () => setState(() {
-                        item.liked = !item.liked;
-                      }),
+                      onTap: () {
+                        setState(() {
+                          if (isLiked) {
+                            _likedWishlistIds.remove(item.id);
+                          } else {
+                            _likedWishlistIds.add(item.id);
+                          }
+                        });
+                      },
                       child: Icon(
-                        item.liked
-                            ? Icons.favorite
-                            : Icons.favorite_border_rounded,
-                        color: MyTripsCurrentScreen._primary,
-                        size: 24,
+                        isLiked ? Icons.favorite : Icons.favorite_border,
+                        color: MyTripsCurrentScreen.primary,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _InfoRow(
-                            assetPath: MyTripsCurrentScreen._calendarAsset,
-                            label: item.date,
-                          ),
-                          const SizedBox(height: 8),
-                          _InfoRow(
-                            assetPath: MyTripsCurrentScreen._clockAsset,
-                            label: item.days,
-                          ),
-                        ],
-                      ),
+                _InfoRow(
+                  assetPath: myTripsCurrentCalendarAsset,
+                  label: item.dateLabel,
+                ),
+                const SizedBox(height: 8),
+                _InfoRow(
+                  assetPath: myTripsCurrentClockAsset,
+                  label: item.daysLabel,
+                ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    item.priceLabel,
+                    style: const TextStyle(
+                      color: MyTripsCurrentScreen.primary,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
                     ),
-                    Text(
-                      item.price,
-                      style: const TextStyle(
-                        color: MyTripsCurrentScreen._primary,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  void _openSearch(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => const ExploreSearchModal(),
     );
   }
 }
@@ -1050,20 +817,20 @@ class _TripTabButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color:
-              selected ? MyTripsCurrentScreen._primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
+          color: selected ? MyTripsCurrentScreen.primary : Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: selected
+                ? MyTripsCurrentScreen.primary
+                : const Color(0xFFE2E2E2),
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color:
-                selected
-                    ? Colors.white
-                    : MyTripsCurrentScreen._textSecondary,
-            fontSize: 14,
+            color: selected ? Colors.white : MyTripsCurrentScreen.textPrimary,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -1073,10 +840,7 @@ class _TripTabButton extends StatelessWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.assetPath,
-    required this.label,
-  });
+  const _InfoRow({required this.assetPath, required this.label});
 
   final String assetPath;
   final String label;
@@ -1085,19 +849,11 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Image.asset(
-          assetPath,
-          width: 15,
-          height: 15,
-          color: const Color(0xFF8F8F8F),
-        ),
+        Image.asset(assetPath, width: 16, height: 16),
         const SizedBox(width: 8),
         Text(
           label,
-          style: const TextStyle(
-            color: MyTripsCurrentScreen._textSecondary,
-            fontSize: 14,
-          ),
+          style: const TextStyle(color: MyTripsCurrentScreen.textSecondary),
         ),
       ],
     );
@@ -1106,27 +862,31 @@ class _InfoRow extends StatelessWidget {
 
 class _TripActionButton extends StatelessWidget {
   const _TripActionButton({
-    required this.icon,
     required this.label,
+    required this.onPressed,
+    this.outlined = false,
   });
 
-  final IconData icon;
   final String label;
+  final VoidCallback onPressed;
+  final bool outlined;
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: () {},
-      style: OutlinedButton.styleFrom(
-        foregroundColor: MyTripsCurrentScreen._primary,
-        side: const BorderSide(color: MyTripsCurrentScreen._primary),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      icon: Icon(icon, size: 16),
-      label: Text(
-        label,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          backgroundColor:
+              outlined ? Colors.white : MyTripsCurrentScreen.primary,
+          foregroundColor:
+              outlined ? MyTripsCurrentScreen.primary : Colors.white,
+          side: outlined
+              ? const BorderSide(color: MyTripsCurrentScreen.primary)
+              : BorderSide.none,
+        ),
+        child: Text(label),
       ),
     );
   }
@@ -1136,32 +896,42 @@ class _AvatarCluster extends StatelessWidget {
   const _AvatarCluster({
     required this.avatars,
     this.extraCount,
+    this.needsAnotherGuide = false,
   });
 
   final List<String> avatars;
   final int? extraCount;
+  final bool needsAnotherGuide;
 
   @override
   Widget build(BuildContext context) {
-    if (avatars.length == 1 && extraCount == null) {
-      return _TripAvatar(assetPath: avatars.first);
+    if (needsAnotherGuide) {
+      return Container(
+        width: 68,
+        height: 68,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: MyTripsCurrentScreen.primary, width: 4),
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.person,
+            color: MyTripsCurrentScreen.primary,
+            size: 34,
+          ),
+        ),
+      );
     }
 
     return SizedBox(
-      width: 88,
-      height: 64,
+      width: 82,
+      height: 68,
       child: Stack(
-        clipBehavior: Clip.none,
         children: [
-          Positioned(
-            left: 0,
-            top: 0,
-            child: _TripAvatar(assetPath: avatars.first),
-          ),
+          _TripAvatar(assetPath: avatars.first),
           if (avatars.length > 1)
             Positioned(
               right: 0,
-              top: 0,
               child: _TripAvatar(
                 assetPath: avatars[1],
                 darkOverlay: extraCount != null,
@@ -1188,132 +958,33 @@ class _TripAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: MyTripsCurrentScreen._primary, width: 4),
-      ),
-      child: SizedBox(
-        width: 60,
-        height: 60,
-        child: ClipOval(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Image.asset(assetPath, fit: BoxFit.cover),
-              if (darkOverlay)
-                Container(color: const Color.fromRGBO(0, 0, 0, 0.45)),
-              if (overlayLabel != null)
-                Center(
-                  child: Text(
-                    overlayLabel!,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ChooseAnotherGuideAvatar extends StatelessWidget {
-  const _ChooseAnotherGuideAvatar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
       width: 68,
       height: 68,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: MyTripsCurrentScreen._primary, width: 4),
+        border: Border.all(color: MyTripsCurrentScreen.primary, width: 4),
       ),
-      child: const Center(
-        child: Icon(
-          Icons.person,
-          color: MyTripsCurrentScreen._primary,
-          size: 34,
+      child: ClipOval(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(assetPath, fit: BoxFit.cover),
+            if (darkOverlay)
+              Container(color: const Color.fromRGBO(0, 0, 0, 0.45)),
+            if (overlayLabel != null)
+              Center(
+                child: Text(
+                  overlayLabel!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
   }
-}
-
-class _NextTripItem {
-  _NextTripItem({
-    required this.coverAsset,
-    required this.title,
-    required this.location,
-    required this.date,
-    required this.time,
-    required this.guideLabel,
-    required this.avatars,
-    this.canChooseAnotherGuide = false,
-    this.statusLabel,
-    this.extraCount,
-    this.showChat = false,
-    this.showPay = false,
-    this.needsAnotherGuide = false,
-  });
-
-  final String coverAsset;
-  final String title;
-  final String location;
-  final String date;
-  final String time;
-  final String guideLabel;
-  final List<String> avatars;
-  final bool canChooseAnotherGuide;
-  final String? statusLabel;
-  final int? extraCount;
-  final bool showChat;
-  final bool showPay;
-  bool needsAnotherGuide;
-}
-
-class _PastTripItem {
-  const _PastTripItem({
-    required this.coverAsset,
-    required this.title,
-    required this.location,
-    required this.date,
-    required this.time,
-    required this.guideLabel,
-    required this.avatarAsset,
-  });
-
-  final String coverAsset;
-  final String title;
-  final String location;
-  final String date;
-  final String time;
-  final String guideLabel;
-  final String avatarAsset;
-}
-
-class _WishTripItem {
-  _WishTripItem({
-    required this.coverAsset,
-    required this.title,
-    required this.date,
-    required this.days,
-    required this.price,
-    required this.likes,
-    required this.liked,
-    required this.bookmarked,
-  });
-
-  final String coverAsset;
-  final String title;
-  final String date;
-  final String days;
-  final String price;
-  final String likes;
-  bool liked;
-  bool bookmarked;
 }

@@ -1,27 +1,20 @@
 import 'package:flutter/material.dart';
+
+import '../models/tour_detail_model.dart';
+import '../models/tour_schedule_day_model.dart';
+import '../repositories/mock_tour_repository.dart';
+import '../repositories/tour_repository.dart';
 import 'tour_detail_share.dart';
 
 class TourDetailScreen extends StatefulWidget {
   const TourDetailScreen({
     super.key,
-    required this.title,
-    required this.price,
-    required this.oldPrice,
-    required this.provider,
-    required this.itinerary,
-    required this.duration,
-    required this.departureDate,
-    required this.departurePlace,
+    required this.tourId,
+    this.repository = const MockTourRepository(),
   });
 
-  final String title;
-  final String price;
-  final String oldPrice;
-  final String provider;
-  final String itinerary;
-  final String duration;
-  final String departureDate;
-  final String departurePlace;
+  final String tourId;
+  final TourRepository repository;
 
   @override
   State<TourDetailScreen> createState() => _TourDetailScreenState();
@@ -34,12 +27,18 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
   static const Color _surface = Color(0xFFF7F7F7);
   static const Color _border = Color(0xFFE4E4E4);
 
-  static const String _headerAsset =
-      'assets/images/tour_detail/670301139 1.png';
   static const String _shareIcon = 'assets/images/tour_detail/Frame 43.png';
   static const String _favoriteIcon = 'assets/images/tour_detail/Shape.png';
   static const String _bookmarkIcon = 'assets/images/tour_detail/Inactive.png';
-  static const String _scheduleIcon = 'assets/images/tour_detail/Vector.png';
+
+  late Future<TourDetailModel?> _detailFuture;
+  int _selectedDay = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _detailFuture = widget.repository.fetchTourDetail(widget.tourId);
+  }
 
   void _showShareBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -51,8 +50,6 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
     );
   }
 
-  int _selectedDay = 0;
-
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).padding.bottom;
@@ -60,62 +57,92 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
       backgroundColor: _surface,
       body: SafeArea(
         bottom: false,
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHeader(context),
-                    _buildOverview(),
-                    _buildSummaryCard(),
-                    _buildScheduleSection(),
-                    _buildPriceSection(),
-                    const SizedBox(height: 24),
-                  ],
+        child: FutureBuilder<TourDetailModel?>(
+          future: _detailFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(
+                child: CircularProgressIndicator(color: _primary),
+              );
+            }
+
+            final detail = snapshot.data;
+            if (detail == null) {
+              return const Center(
+                child: Text(
+                  'Tour details unavailable',
+                  style: TextStyle(color: _textPrimary),
                 ),
-              ),
-            ),
-            Container(
-              color: Colors.white,
-              padding: EdgeInsets.fromLTRB(16, 12, 16, bottomInset > 0 ? bottomInset : 16),
-              child: SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _primary,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
+              );
+            }
+
+            final days = detail.scheduleDays;
+            final safeIndex = _selectedDay >= days.length ? 0 : _selectedDay;
+            final selectedDay = days[safeIndex];
+
+            return Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(context, detail),
+                        _buildOverview(detail),
+                        _buildSummaryCard(detail),
+                        _buildScheduleSection(days, selectedDay),
+                        _buildPriceSection(detail),
+                        const SizedBox(height: 24),
+                      ],
                     ),
                   ),
-                  child: const Text(
-                    'BOOK THIS TOUR',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                ),
+                Container(
+                  color: Colors.white,
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    12,
+                    16,
+                    bottomInset > 0 ? bottomInset : 16,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _primary,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      child: const Text(
+                        'BOOK THIS TOUR',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, TourDetailModel detail) {
     return Stack(
       children: [
         SizedBox(
           height: 270,
           width: double.infinity,
-          child: Image.asset(_headerAsset, fit: BoxFit.cover),
+          child: Image.asset(detail.headerImagePath, fit: BoxFit.cover),
         ),
         Container(
           height: 270,
@@ -177,7 +204,8 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
     );
   }
 
-  Widget _buildOverview() {
+  Widget _buildOverview(TourDetailModel detail) {
+    final tour = detail.tour;
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
@@ -189,7 +217,7 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.title,
+                  tour.title,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -208,9 +236,12 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text(
-                      '145 Reviews',
-                      style: TextStyle(color: _textSecondary, fontSize: 14),
+                    Text(
+                      '${detail.reviewsCount} Reviews',
+                      style: const TextStyle(
+                        color: _textSecondary,
+                        fontSize: 14,
+                      ),
                     ),
                   ],
                 ),
@@ -219,10 +250,19 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
                   text: TextSpan(
                     style: const TextStyle(fontSize: 16, color: _textSecondary),
                     children: [
-                      const TextSpan(text: 'Provider '),
                       TextSpan(
-                        text: widget.provider,
-                        style: const TextStyle(color: _primary),
+                        text: tour.oldPriceLabel ?? tour.priceLabel,
+                        style: const TextStyle(
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                      const TextSpan(text: '  '),
+                      TextSpan(
+                        text: tour.priceLabel,
+                        style: const TextStyle(
+                          color: _primary,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ],
                   ),
@@ -230,229 +270,135 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                widget.price,
-                style: const TextStyle(
-                  color: _primary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                widget.oldPrice,
-                style: const TextStyle(
-                  color: Color(0xFFB0B0B0),
-                  fontSize: 14,
-                  decoration: TextDecoration.lineThrough,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryCard() {
+  Widget _buildSummaryCard(TourDetailModel detail) {
+    final tour = detail.tour;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.08),
-              blurRadius: 10,
-              offset: Offset(0, 2),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(14),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Summary',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: _textPrimary,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _SummaryField(label: 'Provider', value: tour.provider),
+                  ),
+                  Expanded(
+                    child: _SummaryField(
+                      label: 'Departure Date',
+                      value: tour.departureDateLabel,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 16),
-            _SummaryField(label: 'Itinerary', value: widget.itinerary),
-            const SizedBox(height: 14),
-            _SummaryField(label: 'Duration', value: widget.duration),
-            const SizedBox(height: 14),
-            _SummaryField(label: 'Departure Date', value: widget.departureDate),
-            const SizedBox(height: 14),
-            _SummaryField(label: 'Departure Place', value: widget.departurePlace),
-          ],
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: _SummaryField(label: 'Itinerary', value: tour.itinerary),
+                  ),
+                  Expanded(
+                    child: _SummaryField(
+                      label: 'Departure Place',
+                      value: tour.departurePlace,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              _SummaryField(label: 'Duration', value: tour.durationDetail),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildScheduleSection() {
-    final dayOneItems = const [
-      _ScheduleEntry(
-        time: '6:00AM',
-        description:
-            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled.",
-      ),
-      _ScheduleEntry(
-        time: '10:00AM',
-        description:
-            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled.",
-      ),
-      _ScheduleEntry(
-        time: '1:00PM',
-        description:
-            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled.\n\nIt has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets.",
-      ),
-      _ScheduleEntry(
-        time: '8:00PM',
-        description:
-            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled.",
-      ),
-    ];
-    final dayTwoItems = const [
-      _ScheduleEntry(
-        time: '8:30AM',
-        description:
-            "Breakfast and transfer to Ba Na Hills. Continue with guided visits and photo stops across the main attractions.",
-      ),
-      _ScheduleEntry(
-        time: '12:00PM',
-        description:
-            "Lunch break and free exploration time before descending back to the city center.",
-      ),
-      _ScheduleEntry(
-        time: '6:30PM',
-        description:
-            "Return to the hotel and close the day with a relaxed evening in Hoi An.",
-      ),
-    ];
-    final items = _selectedDay == 0 ? dayOneItems : dayTwoItems;
-    final routeTitle = _selectedDay == 0 ? 'Ho Chi Minh - Da Nang' : 'Da Nang - Ba Na - Hoi An';
-
+  Widget _buildScheduleSection(
+    List<TourScheduleDayModel> days,
+    TourScheduleDayModel selectedDay,
+  ) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Image.asset(_scheduleIcon, width: 22, height: 22, color: _textPrimary),
-              const SizedBox(width: 12),
-              const Text(
-                'Schedule',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: _textPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _DayChip(
-                label: 'Day 1',
-                active: _selectedDay == 0,
-                onTap: () => setState(() => _selectedDay = 0),
-              ),
-              const SizedBox(width: 12),
-              _DayChip(
-                label: 'Day 2',
-                active: _selectedDay == 1,
-                onTap: () => setState(() => _selectedDay = 1),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          Text(
-            routeTitle,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+          const Text(
+            'Schedule',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
               color: _textPrimary,
             ),
           ),
-          const SizedBox(height: 10),
-          ...items.map((item) => _ScheduleTile(entry: item)),
+          const SizedBox(height: 14),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: List.generate(days.length, (index) {
+                final day = days[index];
+                return Padding(
+                  padding: EdgeInsets.only(right: index == days.length - 1 ? 0 : 10),
+                  child: _DayChip(
+                    label: day.label,
+                    active: _selectedDay == index,
+                    onTap: () => setState(() => _selectedDay = index),
+                  ),
+                );
+              }),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              children: selectedDay.entries
+                  .map((entry) => _ScheduleTile(entry: entry))
+                  .toList(),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPriceSection() {
+  Widget _buildPriceSection(TourDetailModel detail) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              CircleAvatar(
-                radius: 12,
-                backgroundColor: Colors.transparent,
-                child: Text(
-                  '\$',
-                  style: TextStyle(
-                    color: _textPrimary,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              SizedBox(width: 12),
-              Text(
-                'Price',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: _textPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _border),
-            ),
-            child: Column(
-              children: const [
-                _PriceRow(label: 'Adult (>10 years old)', value: '\$400.00'),
-                Divider(height: 1, color: _border),
-                _PriceRow(label: 'Child (5 - 10 years old)', value: '\$320.00'),
-                Divider(height: 1, color: _border),
-                _PriceRow(label: 'Child (<5 years old)', value: 'Free'),
-              ],
-            ),
-          ),
-        ],
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: _border),
+        ),
+        child: Column(
+          children: [
+            _PriceRow(label: 'Adult', value: detail.tour.priceLabel),
+            const Divider(height: 1, color: _border),
+            _PriceRow(label: 'Child', value: detail.tour.oldPriceLabel ?? '--'),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _HeaderActionIcon extends StatelessWidget {
-  const _HeaderActionIcon({
-    required this.assetPath,
-    this.onTap,
-  });
+  const _HeaderActionIcon({required this.assetPath, this.onTap});
 
   final String assetPath;
   final VoidCallback? onTap;
@@ -462,13 +408,14 @@ class _HeaderActionIcon extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 32,
-        height: 32,
+        width: 34,
+        height: 34,
         decoration: BoxDecoration(
-          color: const Color.fromRGBO(78, 110, 150, 0.72),
-          borderRadius: BorderRadius.circular(16),
+          color: const Color.fromRGBO(255, 255, 255, 0.2),
+          borderRadius: BorderRadius.circular(17),
         ),
-        child: Center(child: Image.asset(assetPath, width: 18, height: 18)),
+        alignment: Alignment.center,
+        child: Image.asset(assetPath, width: 18, height: 18),
       ),
     );
   }
@@ -482,7 +429,7 @@ class _HeaderIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 16,
+      width: 24,
       height: 3,
       decoration: BoxDecoration(
         color: active ? _TourDetailScreenState._primary : Colors.white,
@@ -505,7 +452,10 @@ class _SummaryField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 16, color: _TourDetailScreenState._textSecondary),
+          style: const TextStyle(
+            fontSize: 16,
+            color: _TourDetailScreenState._textSecondary,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
@@ -557,20 +507,10 @@ class _DayChip extends StatelessWidget {
   }
 }
 
-class _ScheduleEntry {
-  const _ScheduleEntry({
-    required this.time,
-    required this.description,
-  });
-
-  final String time;
-  final String description;
-}
-
 class _ScheduleTile extends StatelessWidget {
   const _ScheduleTile({required this.entry});
 
-  final _ScheduleEntry entry;
+  final dynamic entry;
 
   @override
   Widget build(BuildContext context) {
@@ -594,7 +534,7 @@ class _ScheduleTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  entry.time,
+                  entry.timeLabel,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,

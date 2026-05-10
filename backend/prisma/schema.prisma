@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum TripStatus {
+  CURRENT
+  NEXT
+  PAST
+}
+
+model User {
+  id           String     @id @default(cuid())
+  fullName     String
+  email        String     @unique
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  trips        Trip[]
+  wishlist     Wishlist[]
+}
+
+model Destination {
+  id        String   @id
+  name      String
+  city      String
+  country   String
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Guide {
+  id                String            @id
+  name              String
+  avatarPath        String
+  location          String
+  city              String
+  country           String
+  languagesText     String
+  rating            Float             @default(5)
+  reviewsCount      Int               @default(0)
+  bio               String
+  coverImagePath    String?
+  isAvailable       Boolean           @default(true)
+  featured          Boolean           @default(false)
+  headerImagePath   String?
+  mediaPreviewPath  String?
+  shortIntroduction String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  experiences       GuideExperience[]
+  reviews           GuideReview[]
+}
+
+model GuideExperience {
+  id                 String   @id @default(cuid())
+  guideId            String
+  leftImagePath      String
+  rightTopImagePath  String
+  rightBottomImagePath String
+  title              String
+  location           String
+  dateLabel          String
+  likesLabel         String
+  sortOrder          Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  guide              Guide    @relation(fields: [guideId], references: [id], onDelete: Cascade)
+}
+
+model GuideReview {
+  id         String   @id @default(cuid())
+  guideId    String
+  avatarPath String
+  name       String
+  dateLabel  String
+  review     String
+  rating     Int      @default(5)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  guide      Guide    @relation(fields: [guideId], references: [id], onDelete: Cascade)
+}
+
+model Tour {
+  id                 String            @id
+  title              String
+  coverImagePath     String
+  dateLabel          String
+  durationLabel      String
+  priceLabel         String
+  oldPriceLabel      String?
+  likesLabel         String
+  provider           String
+  itinerary          String
+  durationDetail     String
+  departureDateLabel String
+  departurePlace     String
+  city               String?
+  country            String?
+  description        String?
+  rating             Float             @default(5)
+  reviewsCount       Int               @default(0)
+  isLiked            Boolean           @default(false)
+  isBookmarked       Boolean           @default(false)
+  featured           Boolean           @default(false)
+  headerImagePath    String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  scheduleDays       TourScheduleDay[]
+  wishlistItems      Wishlist[]
+}
+
+model TourScheduleDay {
+  id         String              @id @default(cuid())
+  tourId     String
+  label      String
+  sortOrder  Int                 @default(0)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  tour       Tour                @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  entries    TourScheduleEntry[]
+}
+
+model TourScheduleEntry {
+  id          String          @id @default(cuid())
+  dayId       String
+  timeLabel   String
+  description String
+  sortOrder   Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  day         TourScheduleDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+}
+
+model Attraction {
+  id          String           @id
+  name        String
+  city        String
+  imagePath   String?
+  description String?
+  isSuggested Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  tripLinks   TripAttraction[]
+}
+
+model Trip {
+  id                       String           @id @default(cuid())
+  userId                   String
+  city                     String
+  dateLabel                String
+  fromTimeLabel            String
+  toTimeLabel              String
+  travelerCount            Int
+  status                   TripStatus       @default(NEXT)
+  title                    String?
+  note                     String?
+  guideId                  String?
+  guideName                String?
+  priceLabel               String?
+  guideLanguagePreferencesText String
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+  user                     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attractionLinks          TripAttraction[]
+}
+
+model TripAttraction {
+  tripId       String
+  attractionId String
+  trip         Trip       @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  attraction   Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+
+  @@id([tripId, attractionId])
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  tourId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tourId])
+}

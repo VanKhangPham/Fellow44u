@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 
 import '../Tour_Detail/tour_detail_screen.dart';
+import '../models/tour_model.dart';
+import '../repositories/mock_tour_repository.dart';
+import '../repositories/tour_repository.dart';
 import '../search/search.dart';
 import 'explore_more_header.dart';
 
 class TourMoreScreen extends StatefulWidget {
-  const TourMoreScreen({super.key});
+  const TourMoreScreen({
+    super.key,
+    this.repository = const MockTourRepository(),
+  });
+
+  final TourRepository repository;
 
   @override
   State<TourMoreScreen> createState() => _TourMoreScreenState();
@@ -19,147 +27,13 @@ class _TourMoreScreenState extends State<TourMoreScreen> {
   static const String _heroAsset =
       'assets/images/home_tour_more/536d2c710563ff68867dc5f6481dcfafe2bfeb33.png';
 
-  late final List<_TourMoreItem> _tours = [
-    _TourMoreItem(
-      imagePath:
-          'assets/images/home_tour_more/69c85a3ef2934da77239256b0a2f5429818850a5.jpg',
-      title: 'Da Nang - Ba Na - Hoi An',
-      date: 'Jan 30, 2020',
-      days: '3 days',
-      price: '\$400.00',
-      oldPrice: '\$450.00',
-      likes: '1247 likes',
-      provider: 'dulichviet',
-      itinerary: 'Da Nang - Ba Na - Hoi An',
-      duration: '2 days, 2 nights',
-      departureDate: 'Feb 12',
-      departurePlace: 'Ho Chi Minh',
-    ),
-    _TourMoreItem(
-      imagePath:
-          'assets/images/home_tour_more/e8bbf8e4a3407d7d2ac4e0c6107ed68738f49e92.png',
-      title: 'Melbourne - Sydney',
-      date: 'Jan 30, 2020',
-      days: '3 days',
-      price: '\$600.00',
-      oldPrice: '\$680.00',
-      likes: '1247 likes',
-      liked: true,
-      provider: 'southerntour',
-      itinerary: 'Melbourne - Sydney',
-      duration: '4 days, 3 nights',
-      departureDate: 'Mar 05',
-      departurePlace: 'Melbourne',
-    ),
-    _TourMoreItem(
-      imagePath:
-          'assets/images/home_tour_more/6236a6fc45bbe62cddf36784fcd2767ec32f1972.jpg',
-      title: 'Hanoi - Ha Long Bay',
-      date: 'Jan 30, 2020',
-      days: '3 days',
-      price: '\$300.00',
-      oldPrice: '\$350.00',
-      likes: '1247 likes',
-      bookmarked: true,
-      provider: 'vietravel',
-      itinerary: 'Hanoi - Ha Long Bay',
-      duration: '2 days, 1 night',
-      departureDate: 'Apr 20',
-      departurePlace: 'Hanoi',
-    ),
-    _TourMoreItem(
-      imagePath:
-          'assets/images/home_tour_more/69c85a3ef2934da77239256b0a2f5429818850a5.jpg',
-      title: 'Da Nang - Ba Na - Hoi An',
-      date: 'Jan 30, 2020',
-      days: '3 days',
-      price: '\$400.00',
-      oldPrice: '\$450.00',
-      likes: '1247 likes',
-      provider: 'dulichviet',
-      itinerary: 'Da Nang - Ba Na - Hoi An',
-      duration: '2 days, 2 nights',
-      departureDate: 'Feb 12',
-      departurePlace: 'Ho Chi Minh',
-    ),
-    _TourMoreItem(
-      imagePath:
-          'assets/images/home_tour_more/e8bbf8e4a3407d7d2ac4e0c6107ed68738f49e92.png',
-      title: 'Melbourne - Sydney',
-      date: 'Jan 30, 2020',
-      days: '3 days',
-      price: '\$600.00',
-      oldPrice: '\$680.00',
-      likes: '1247 likes',
-      liked: true,
-      provider: 'southerntour',
-      itinerary: 'Melbourne - Sydney',
-      duration: '4 days, 3 nights',
-      departureDate: 'Mar 05',
-      departurePlace: 'Melbourne',
-    ),
-    _TourMoreItem(
-      imagePath:
-          'assets/images/home_tour_more/6236a6fc45bbe62cddf36784fcd2767ec32f1972.jpg',
-      title: 'Hanoi - Ha Long Bay',
-      date: 'Jan 30, 2020',
-      days: '3 days',
-      price: '\$300.00',
-      oldPrice: '\$350.00',
-      likes: '1247 likes',
-      bookmarked: true,
-      provider: 'vietravel',
-      itinerary: 'Hanoi - Ha Long Bay',
-      duration: '2 days, 1 night',
-      departureDate: 'Apr 20',
-      departurePlace: 'Hanoi',
-    ),
-  ];
+  late Future<List<TourModel>> _toursFuture;
+  final Set<String> _bookmarkedTourIds = <String>{};
 
   @override
-  Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).padding.bottom;
-    return Scaffold(
-      backgroundColor: _background,
-      body: SafeArea(
-        bottom: false,
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            ExploreMoreHeader(
-              heroAsset: _heroAsset,
-              title: 'Plenty of amazing tours are waiting for you',
-              onBack: () => Navigator.of(context).pop(),
-              onSearchTap: () => _openSearch(context),
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: List.generate(_tours.length, (index) {
-                  final tour = _tours[index];
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      bottom: index == _tours.length - 1 ? 0 : 18,
-                    ),
-                    child: _buildTourCard(context, tour),
-                  );
-                }),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                16,
-                10,
-                16,
-                bottomInset > 0 ? bottomInset + 12 : 24,
-              ),
-              child: const ExploreMoreIndicator(),
-            ),
-          ],
-        ),
-      ),
-    );
+  void initState() {
+    super.initState();
+    _toursFuture = widget.repository.fetchAllTours();
   }
 
   void _openSearch(BuildContext context) {
@@ -170,21 +44,73 @@ class _TourMoreScreenState extends State<TourMoreScreen> {
     );
   }
 
-  Widget _buildTourCard(BuildContext context, _TourMoreItem tour) {
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+    return Scaffold(
+      backgroundColor: _background,
+      body: SafeArea(
+        bottom: false,
+        child: FutureBuilder<List<TourModel>>(
+          future: _toursFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(
+                child: CircularProgressIndicator(color: _primary),
+              );
+            }
+
+            final tours = snapshot.data ?? const <TourModel>[];
+            return ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                ExploreMoreHeader(
+                  heroAsset: _heroAsset,
+                  title: 'Plenty of amazing tours are waiting for you',
+                  onBack: () => Navigator.of(context).pop(),
+                  onSearchTap: () => _openSearch(context),
+                ),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: List.generate(tours.length, (index) {
+                      final tour = tours[index];
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index == tours.length - 1 ? 0 : 18,
+                        ),
+                        child: _buildTourCard(context, tour),
+                      );
+                    }),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    10,
+                    16,
+                    bottomInset > 0 ? bottomInset + 12 : 24,
+                  ),
+                  child: const ExploreMoreIndicator(),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTourCard(BuildContext context, TourModel tour) {
+    final isBookmarked =
+        _bookmarkedTourIds.contains(tour.id) || tour.isBookmarked;
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => TourDetailScreen(
-              title: tour.title,
-              price: tour.price,
-              oldPrice: tour.oldPrice,
-              provider: tour.provider,
-              itinerary: tour.itinerary,
-              duration: tour.duration,
-              departureDate: tour.departureDate,
-              departurePlace: tour.departurePlace,
-            ),
+            builder: (context) => TourDetailScreen(tourId: tour.id),
           ),
         );
       },
@@ -208,7 +134,7 @@ class _TourMoreScreenState extends State<TourMoreScreen> {
               child: Stack(
                 children: [
                   Image.asset(
-                    tour.imagePath,
+                    tour.coverImagePath,
                     width: double.infinity,
                     height: 138,
                     fit: BoxFit.cover,
@@ -232,13 +158,19 @@ class _TourMoreScreenState extends State<TourMoreScreen> {
                     top: 10,
                     right: 10,
                     child: GestureDetector(
-                      onTap: () => setState(() {
-                        tour.bookmarked = !tour.bookmarked;
-                      }),
+                      onTap: () {
+                        setState(() {
+                          if (isBookmarked) {
+                            _bookmarkedTourIds.remove(tour.id);
+                          } else {
+                            _bookmarkedTourIds.add(tour.id);
+                          }
+                        });
+                      },
                       child: Icon(
-                        tour.bookmarked
+                        isBookmarked
                             ? Icons.bookmark
-                            : Icons.bookmark_border_rounded,
+                            : Icons.bookmark_border_outlined,
                         color: Colors.white,
                         size: 22,
                       ),
@@ -254,15 +186,15 @@ class _TourMoreScreenState extends State<TourMoreScreen> {
                           (_) => const Icon(
                             Icons.star,
                             color: Color(0xFFFFC107),
-                            size: 16,
+                            size: 15,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         Text(
-                          tour.likes,
+                          tour.likesLabel,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -273,12 +205,11 @@ class _TourMoreScreenState extends State<TourMoreScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Text(
@@ -286,45 +217,49 @@ class _TourMoreScreenState extends State<TourMoreScreen> {
                           style: const TextStyle(
                             color: _textPrimary,
                             fontSize: 16,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () => setState(() {
-                          tour.liked = !tour.liked;
-                        }),
-                        child: Icon(
-                          tour.liked
-                              ? Icons.favorite
-                              : Icons.favorite_border_rounded,
-                          color: _primary,
-                          size: 24,
-                        ),
+                      Icon(
+                        tour.isLiked
+                            ? Icons.favorite
+                            : Icons.favorite_border_outlined,
+                        color: _primary,
+                        size: 22,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 9),
+                  const SizedBox(height: 8),
                   _buildMetaRow(
                     icon: Icons.calendar_today_outlined,
-                    label: tour.date,
+                    label: tour.dateLabel,
                   ),
                   const SizedBox(height: 6),
+                  _buildMetaRow(
+                    icon: Icons.access_time,
+                    label: tour.durationLabel,
+                  ),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
-                      Expanded(
-                        child: _buildMetaRow(
-                          icon: Icons.access_time,
-                          label: tour.days,
+                      if (tour.oldPriceLabel != null)
+                        Text(
+                          tour.oldPriceLabel!,
+                          style: const TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            color: _textSecondary,
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
+                      const Spacer(),
                       Text(
-                        tour.price,
+                        tour.priceLabel,
                         style: const TextStyle(
                           color: _primary,
-                          fontSize: 18,
+                          fontSize: 26,
                           fontWeight: FontWeight.w700,
+                          height: 1,
                         ),
                       ),
                     ],
@@ -338,57 +273,19 @@ class _TourMoreScreenState extends State<TourMoreScreen> {
     );
   }
 
-  Widget _buildMetaRow({
-    required IconData icon,
-    required String label,
-  }) {
+  Widget _buildMetaRow({required IconData icon, required String label}) {
     return Row(
       children: [
-        Icon(icon, size: 15, color: const Color(0xFFB1B1B1)),
-        const SizedBox(width: 8),
+        Icon(icon, size: 14, color: const Color(0xFF9E9E9E)),
+        const SizedBox(width: 4),
         Text(
           label,
           style: const TextStyle(
             color: _textSecondary,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
+            fontSize: 12,
           ),
         ),
       ],
     );
   }
-}
-
-class _TourMoreItem {
-  _TourMoreItem({
-    required this.imagePath,
-    required this.title,
-    required this.date,
-    required this.days,
-    required this.price,
-    required this.likes,
-    required this.provider,
-    required this.itinerary,
-    required this.duration,
-    required this.departureDate,
-    required this.departurePlace,
-    this.oldPrice = '',
-    this.liked = false,
-    this.bookmarked = false,
-  });
-
-  final String imagePath;
-  final String title;
-  final String date;
-  final String days;
-  final String price;
-  final String likes;
-  final String oldPrice;
-  final String provider;
-  final String itinerary;
-  final String duration;
-  final String departureDate;
-  final String departurePlace;
-  bool liked;
-  bool bookmarked;
 }

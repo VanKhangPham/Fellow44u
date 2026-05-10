@@ -1,0 +1,761 @@
+{
+  "info": {
+    "_postman_id": "b8eb6b3d-1ceb-4f66-9d89-fellow4u-api",
+    "name": "Fellow4U API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/sign-up",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Nguyen Van A\",\n  \"email\": \"a@gmail.com\",\n  \"password\": \"12345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/sign-up",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "sign-up"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /auth/sign-in",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response?.data?.accessToken) {",
+                  "  pm.environment.set('accessToken', response.data.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"a@gmail.com\",\n  \"password\": \"12345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/sign-in",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "sign-in"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /auth/me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /auth/forgot-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"a@gmail.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "forgot-password"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Destinations",
+      "item": [
+        {
+          "name": "GET /destinations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/destinations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "destinations"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Guides",
+      "item": [
+        {
+          "name": "GET /guides",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/guides",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "guides"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /guides?featured=true&limit=4",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/guides?featured=true&limit=4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "guides"
+              ],
+              "query": [
+                {
+                  "key": "featured",
+                  "value": "true"
+                },
+                {
+                  "key": "limit",
+                  "value": "4"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /guides?city=Danang&language=English",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/guides?city=Danang&language=English",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "guides"
+              ],
+              "query": [
+                {
+                  "key": "city",
+                  "value": "Danang"
+                },
+                {
+                  "key": "language",
+                  "value": "English"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /guides/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/guides/{{guideId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "guides",
+                "{{guideId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tours",
+      "item": [
+        {
+          "name": "GET /tours",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tours"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /tours?featured=true&limit=4",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours?featured=true&limit=4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tours"
+              ],
+              "query": [
+                {
+                  "key": "featured",
+                  "value": "true"
+                },
+                {
+                  "key": "limit",
+                  "value": "4"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /tours?city=Danang&minPrice=300&maxPrice=500",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours?city=Danang&minPrice=300&maxPrice=500",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tours"
+              ],
+              "query": [
+                {
+                  "key": "city",
+                  "value": "Danang"
+                },
+                {
+                  "key": "minPrice",
+                  "value": "300"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "500"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /tours/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours/{{tourId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tours",
+                "{{tourId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "GET /search?query=Danang",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/search?query=Danang",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "Danang"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /search?query=Danang&category=guide&language=English",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/search?query=Danang&category=guide&language=English",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "Danang"
+                },
+                {
+                  "key": "category",
+                  "value": "guide"
+                },
+                {
+                  "key": "language",
+                  "value": "English"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /search?query=Hanoi&category=tour",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/search?query=Hanoi&category=tour",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "Hanoi"
+                },
+                {
+                  "key": "category",
+                  "value": "tour"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attractions",
+      "item": [
+        {
+          "name": "GET /attractions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/attractions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attractions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /attractions?city=Danang&search=Cong",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/attractions?city=Danang&search=Cong",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attractions"
+              ],
+              "query": [
+                {
+                  "key": "city",
+                  "value": "Danang"
+                },
+                {
+                  "key": "search",
+                  "value": "Cong"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trips",
+      "item": [
+        {
+          "name": "POST /trips",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response?.data?.id) {",
+                  "  pm.environment.set('tripId', response.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Danang Weekend Trip\",\n  \"city\": \"Danang\",\n  \"date\": \"2026-05-20\",\n  \"fromTime\": \"08:00\",\n  \"toTime\": \"18:00\",\n  \"travelerCount\": 2,\n  \"note\": \"Need local food suggestions\",\n  \"guideLanguagePreferences\": [\"English\"],\n  \"attractionIds\": [\"dragon-bridge\", \"cham-museum\"],\n  \"status\": \"next\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trips",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trips"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /trips",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trips",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trips"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /trips?status=current",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trips?status=current",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trips"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "current"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /trips/:id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trips/{{tripId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trips",
+                "{{tripId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /trips/:id",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Danang Weekend Trip Updated\",\n  \"city\": \"Danang\",\n  \"date\": \"2026-05-21\",\n  \"fromTime\": \"09:00\",\n  \"toTime\": \"18:30\",\n  \"travelerCount\": 3,\n  \"note\": \"Updated plan\",\n  \"guideLanguagePreferences\": [\"English\", \"Vietnamese\"],\n  \"attractionIds\": [\"dragon-bridge\"],\n  \"status\": \"next\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trips/{{tripId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trips",
+                "{{tripId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "item": [
+        {
+          "name": "GET /wishlist",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wishlist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "wishlist"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tourId\": \"tour-danang-bana-hoian\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wishlist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "wishlist"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /wishlist/:tourId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wishlist/{{tourId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "wishlist",
+                "{{tourId}}"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

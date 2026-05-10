@@ -33,6 +33,13 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Backend / Node related
+backend/node_modules/
+backend/dist/
+backend/.env
+backend/prisma/dev.db
+backend/prisma/dev.db-journal
+
 # Symbolication related
 app.*.symbols
 

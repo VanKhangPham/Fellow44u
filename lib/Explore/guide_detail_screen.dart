@@ -1,45 +1,39 @@
 import 'package:flutter/material.dart';
 
 import '../Trip/trip_information_screen.dart';
+import '../models/guide_detail_model.dart';
+import '../models/guide_experience_detail_model.dart';
+import '../models/guide_review_model.dart';
+import '../repositories/guide_repository.dart';
+import '../repositories/mock_guide_repository.dart';
 
-class GuideDetailScreen extends StatelessWidget {
+class GuideDetailScreen extends StatefulWidget {
   const GuideDetailScreen({
     super.key,
-    required this.name,
-    required this.imagePath,
-    required this.location,
+    required this.guideId,
+    this.repository = const MockGuideRepository(),
   });
 
-  final String name;
-  final String imagePath;
-  final String location;
+  final String guideId;
+  final GuideRepository repository;
 
+  @override
+  State<GuideDetailScreen> createState() => _GuideDetailScreenState();
+}
+
+class _GuideDetailScreenState extends State<GuideDetailScreen> {
   static const Color _primary = Color(0xFF00C7A7);
   static const Color _textPrimary = Color(0xFF212121);
   static const Color _textSecondary = Color(0xFF777777);
   static const Color _chipBackground = Color(0xFFF3F3F3);
-  static const Color _border = Color(0xFFE2E2E2);
 
-  static const String _headerAsset =
-      'assets/images/guide_page/a3d236cc36adec97a0448232035165d4adb9a4ae.png';
-  static const String _experienceCoverAsset =
-      'assets/images/guide_page/21c7c394eebe1f5ab9fb03014d50d398e03633a0.jpg';
-  static const String _experienceRightTopAsset =
-      'assets/images/guide_page/c7a25670e7ba19408b7e776b363d6705858a5598.jpg';
-  static const String _experienceRightBottomAsset =
-      'assets/images/guide_page/8e041ef05fef946a59bcf7b4931c2de56d77b715.jpg';
-  static const String _foodLeftAsset =
-      'assets/images/guide_page/a01abee1a6fc8132b8dc0bc149ba93954fd78b33.jpg';
-  static const String _foodRightTopAsset =
-      'assets/images/guide_page/3a15600dffa5a81824d2f9def8b87e1ba384e8e4.jpg';
-  static const String _foodRightBottomAsset =
-      'assets/images/guide_page/90ae1c9a1f3e492bb8800b488b4397104799941f.jpg';
-  static const String _reviewAvatarOne =
-      'assets/images/guide_page/1019aa9fca01d6bce807cf74fe90b3b71c995634.png';
-  static const String _reviewAvatarTwo =
-      'assets/images/guide_page/959746cd629042b29a8f93f90bd29f83e5401423.png';
-  static const String _reviewAvatarThree =
-      'assets/images/guide_page/c7b8b5b6cc0c7f882d307811b73f983fdd7235b8.png';
+  late Future<GuideDetailModel?> _detailFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _detailFuture = widget.repository.fetchGuideDetail(widget.guideId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,41 +41,52 @@ class GuideDetailScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         bottom: false,
-        child: Column(
-          children: [
-            Expanded(
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(child: _buildHeader(context)),
-                  SliverToBoxAdapter(child: _buildProfileSection(context)),
-                  SliverToBoxAdapter(child: _buildMediaPreview()),
-                  SliverToBoxAdapter(child: _buildRateTable()),
-                  SliverToBoxAdapter(
-                    child: _buildSectionTitle('My Experiences'),
-                  ),
-                  SliverToBoxAdapter(child: _buildExperienceCards()),
-                  SliverToBoxAdapter(
-                    child: _buildSectionTitleWithAction('Reviews'),
-                  ),
-                  SliverToBoxAdapter(child: _buildReviews()),
-                  const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                ],
-              ),
-            ),
-          ],
+        child: FutureBuilder<GuideDetailModel?>(
+          future: _detailFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(
+                child: CircularProgressIndicator(color: _primary),
+              );
+            }
+
+            final detail = snapshot.data;
+            if (detail == null) {
+              return const Center(
+                child: Text(
+                  'Guide details unavailable',
+                  style: TextStyle(color: _textPrimary),
+                ),
+              );
+            }
+
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(child: _buildHeader(context, detail)),
+                SliverToBoxAdapter(child: _buildProfileSection(context, detail)),
+                SliverToBoxAdapter(child: _buildMediaPreview(detail)),
+                SliverToBoxAdapter(child: _buildRateTable()),
+                SliverToBoxAdapter(child: _buildSectionTitle('My Experiences')),
+                SliverToBoxAdapter(child: _buildExperienceCards(detail.experiences)),
+                SliverToBoxAdapter(child: _buildSectionTitle('Reviews')),
+                SliverToBoxAdapter(child: _buildReviews(detail.reviews)),
+                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, GuideDetailModel detail) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
         SizedBox(
           height: 180,
           width: double.infinity,
-          child: Image.asset(_headerAsset, fit: BoxFit.cover),
+          child: Image.asset(detail.headerImagePath, fit: BoxFit.cover),
         ),
         Positioned(
           left: 12,
@@ -101,7 +106,7 @@ class GuideDetailScreen extends StatelessWidget {
             ),
             child: CircleAvatar(
               radius: 38,
-              backgroundImage: AssetImage(imagePath),
+              backgroundImage: AssetImage(detail.guide.avatarPath),
             ),
           ),
         ),
@@ -109,7 +114,8 @@ class GuideDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileSection(BuildContext context) {
+  Widget _buildProfileSection(BuildContext context, GuideDetailModel detail) {
+    final guide = detail.guide;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 40, 16, 0),
       child: Column(
@@ -123,7 +129,7 @@ class GuideDetailScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      guide.name,
                       style: const TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
@@ -142,9 +148,12 @@ class GuideDetailScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          '127 Reviews',
-                          style: TextStyle(fontSize: 16, color: _textSecondary),
+                        Text(
+                          '${guide.reviewsCount} Reviews',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: _textSecondary,
+                          ),
                         ),
                       ],
                     ),
@@ -186,11 +195,9 @@ class GuideDetailScreen extends StatelessWidget {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: const [
-              _LanguageChip(label: 'Vietnamese'),
-              _LanguageChip(label: 'English'),
-              _LanguageChip(label: 'Korean'),
-            ],
+            children: detail.languages
+                .map((language) => _LanguageChip(label: language))
+                .toList(),
           ),
           const SizedBox(height: 10),
           Row(
@@ -198,7 +205,7 @@ class GuideDetailScreen extends StatelessWidget {
               const Icon(Icons.location_on, color: _primary, size: 20),
               const SizedBox(width: 4),
               Text(
-                location,
+                guide.location,
                 style: const TextStyle(
                   fontSize: 16,
                   color: _primary,
@@ -209,10 +216,7 @@ class GuideDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            "Short introduction: Lorem Ipsum is simply dummy text of the printing "
-            "and typesetting industry. Lorem Ipsum has been the industry's "
-            "standard dummy text ever since the 1500s, when an unknown printer "
-            "took a galley of type and scrambled it to make a type specimen book.",
+            detail.shortIntroduction,
             style: const TextStyle(
               fontSize: 14,
               color: _textPrimary,
@@ -225,7 +229,7 @@ class GuideDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMediaPreview() {
+  Widget _buildMediaPreview(GuideDetailModel detail) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ClipRRect(
@@ -235,20 +239,13 @@ class GuideDetailScreen extends StatelessWidget {
           children: [
             AspectRatio(
               aspectRatio: 1.35,
-              child: Image.asset(imagePath, fit: BoxFit.cover),
+              child: Image.asset(detail.mediaPreviewPath, fit: BoxFit.cover),
             ),
-            Container(
-              width: 68,
-              height: 68,
-              decoration: BoxDecoration(
-                color: const Color.fromRGBO(255, 255, 255, 0.72),
-                borderRadius: BorderRadius.circular(34),
-              ),
-              child: const Icon(
-                Icons.play_arrow_rounded,
-                color: _primary,
-                size: 44,
-              ),
+            Container(color: const Color.fromRGBO(0, 0, 0, 0.22)),
+            const CircleAvatar(
+              radius: 28,
+              backgroundColor: Color.fromRGBO(255, 255, 255, 0.88),
+              child: Icon(Icons.play_arrow, size: 30, color: _primary),
             ),
           ],
         ),
@@ -258,19 +255,19 @@ class GuideDetailScreen extends StatelessWidget {
 
   Widget _buildRateTable() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
       child: Container(
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: _border),
+          color: const Color(0xFFFAFAFA),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Column(
-          children: const [
-            _RateRow(label: '1 - 3 Travelers', price: '\$10/ hour'),
-            Divider(height: 1, color: _border),
-            _RateRow(label: '4 - 6 Travelers', price: '\$14/ hour'),
-            Divider(height: 1, color: _border),
-            _RateRow(label: '7 - 9 Travelers', price: '\$17/ hour'),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _RateRow(label: 'Response', value: '5.0'),
+            _RateRow(label: 'Knowledge', value: '4.9'),
+            _RateRow(label: 'Service', value: '5.0'),
           ],
         ),
       ),
@@ -279,11 +276,11 @@ class GuideDetailScreen extends StatelessWidget {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
+      padding: const EdgeInsets.fromLTRB(16, 22, 16, 14),
       child: Text(
         title,
         style: const TextStyle(
-          fontSize: 24,
+          fontSize: 22,
           fontWeight: FontWeight.w700,
           color: _textPrimary,
         ),
@@ -291,98 +288,34 @@ class GuideDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitleWithAction(String title) {
+  Widget _buildExperienceCards(List<GuideExperienceDetailModel> experiences) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 22, 16, 14),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: _textPrimary,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: experiences
+            .map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _ExperienceDetailCard(item: item),
               ),
-            ),
-          ),
-          const Text(
-            'SEE MORE',
-            style: TextStyle(
-              color: _primary,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+            )
+            .toList(),
       ),
     );
   }
 
-  Widget _buildExperienceCards() {
+  Widget _buildReviews(List<GuideReviewModel> reviews) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        children: const [
-          _ExperienceDetailCard(
-            leftImagePath: _experienceCoverAsset,
-            rightTopImagePath: _experienceRightTopAsset,
-            rightBottomImagePath: _experienceRightBottomAsset,
-            title: '2 Hour Bicycle Tour exploring Hoian',
-            location: 'Hoian, Vietnam',
-            date: 'Jan 25, 2020',
-            likes: '1234 Likes',
-          ),
-          SizedBox(height: 16),
-          _ExperienceDetailCard(
-            leftImagePath: _foodLeftAsset,
-            rightTopImagePath: _foodRightTopAsset,
-            rightBottomImagePath: _foodRightBottomAsset,
-            title: 'Food tour in Danang',
-            location: 'Danang, Vietnam',
-            date: 'Jan 20, 2020',
-            likes: '234 Likes',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReviews() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: const [
-          _ReviewTile(
-            avatarPath: _reviewAvatarOne,
-            name: 'Pena Valdez',
-            date: 'Jan 22, 2020',
-            review:
-                "Lorem Ipsum is simply dummy text of the printing and typesetting industry. "
-                "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, "
-                "when an unknown printer took a galley of type and scrambled it to make a type "
-                "specimen book. It has survived not only five centuries.",
-          ),
-          SizedBox(height: 18),
-          _ReviewTile(
-            avatarPath: _reviewAvatarTwo,
-            name: 'Daehyun',
-            date: 'Jan 22, 2020',
-            review:
-                "Many desktop publishing packages and web page editors now use "
-                "Lorem Ipsum as their default model text, and a search for 'lorem ipsum'",
-          ),
-          SizedBox(height: 18),
-          _ReviewTile(
-            avatarPath: _reviewAvatarThree,
-            name: 'Burns Marks',
-            date: 'Jan 22, 2020',
-            review:
-                "There are many variations of passages of Lorem Ipsum available, "
-                "but the majority have suffered alteration in some form, by injected "
-                "humour, or randomised words which don't look even slightly believable.",
-          ),
-        ],
+        children: reviews
+            .map(
+              (review) => Padding(
+                padding: const EdgeInsets.only(bottom: 18),
+                child: _ReviewTile(review: review),
+              ),
+            )
+            .toList(),
       ),
     );
   }
@@ -396,17 +329,16 @@ class _LanguageChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: GuideDetailScreen._chipBackground,
-        borderRadius: BorderRadius.circular(12),
+        color: _GuideDetailScreenState._chipBackground,
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: 12,
-          color: GuideDetailScreen._textSecondary,
-          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          color: _GuideDetailScreenState._textPrimary,
         ),
       ),
     );
@@ -414,67 +346,40 @@ class _LanguageChip extends StatelessWidget {
 }
 
 class _RateRow extends StatelessWidget {
-  const _RateRow({required this.label, required this.price});
+  const _RateRow({required this.label, required this.value});
 
   final String label;
-  final String price;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: GuideDetailScreen._textPrimary,
-                ),
-              ),
-            ),
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: _GuideDetailScreenState._primary,
           ),
-          const VerticalDivider(width: 1, color: GuideDetailScreen._border),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                price,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: GuideDetailScreen._textPrimary,
-                ),
-              ),
-            ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            color: _GuideDetailScreenState._textSecondary,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
 class _ExperienceDetailCard extends StatelessWidget {
-  const _ExperienceDetailCard({
-    required this.leftImagePath,
-    required this.rightTopImagePath,
-    required this.rightBottomImagePath,
-    required this.title,
-    required this.location,
-    required this.date,
-    required this.likes,
-  });
+  const _ExperienceDetailCard({required this.item});
 
-  final String leftImagePath;
-  final String rightTopImagePath;
-  final String rightBottomImagePath;
-  final String title;
-  final String location;
-  final String date;
-  final String likes;
+  final GuideExperienceDetailModel item;
 
   @override
   Widget build(BuildContext context) {
@@ -501,7 +406,7 @@ class _ExperienceDetailCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Image.asset(
-                      leftImagePath,
+                      item.leftImagePath,
                       fit: BoxFit.cover,
                       height: double.infinity,
                     ),
@@ -511,14 +416,14 @@ class _ExperienceDetailCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Image.asset(
-                            rightTopImagePath,
+                            item.rightTopImagePath,
                             fit: BoxFit.cover,
                             width: double.infinity,
                           ),
                         ),
                         Expanded(
                           child: Image.asset(
-                            rightBottomImagePath,
+                            item.rightBottomImagePath,
                             fit: BoxFit.cover,
                             width: double.infinity,
                           ),
@@ -536,11 +441,11 @@ class _ExperienceDetailCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  item.title,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: GuideDetailScreen._textPrimary,
+                    color: _GuideDetailScreenState._textPrimary,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -549,14 +454,14 @@ class _ExperienceDetailCard extends StatelessWidget {
                     const Icon(
                       Icons.location_on,
                       size: 16,
-                      color: GuideDetailScreen._primary,
+                      color: _GuideDetailScreenState._primary,
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      location,
+                      item.location,
                       style: const TextStyle(
                         fontSize: 14,
-                        color: GuideDetailScreen._primary,
+                        color: _GuideDetailScreenState._primary,
                       ),
                     ),
                   ],
@@ -565,24 +470,24 @@ class _ExperienceDetailCard extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      date,
+                      item.dateLabel,
                       style: const TextStyle(
                         fontSize: 14,
-                        color: GuideDetailScreen._textSecondary,
+                        color: _GuideDetailScreenState._textSecondary,
                       ),
                     ),
                     const Spacer(),
                     const Icon(
                       Icons.favorite_border,
-                      color: GuideDetailScreen._primary,
+                      color: _GuideDetailScreenState._primary,
                       size: 22,
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      likes,
+                      item.likesLabel,
                       style: const TextStyle(
                         fontSize: 14,
-                        color: GuideDetailScreen._textSecondary,
+                        color: _GuideDetailScreenState._textSecondary,
                       ),
                     ),
                   ],
@@ -597,17 +502,9 @@ class _ExperienceDetailCard extends StatelessWidget {
 }
 
 class _ReviewTile extends StatelessWidget {
-  const _ReviewTile({
-    required this.avatarPath,
-    required this.name,
-    required this.date,
-    required this.review,
-  });
+  const _ReviewTile({required this.review});
 
-  final String avatarPath;
-  final String name;
-  final String date;
-  final String review;
+  final GuideReviewModel review;
 
   @override
   Widget build(BuildContext context) {
@@ -616,25 +513,25 @@ class _ReviewTile extends StatelessWidget {
       children: [
         Row(
           children: [
-            CircleAvatar(radius: 24, backgroundImage: AssetImage(avatarPath)),
+            CircleAvatar(radius: 24, backgroundImage: AssetImage(review.avatarPath)),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name,
+                    review.name,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: GuideDetailScreen._textPrimary,
+                      color: _GuideDetailScreenState._textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
                       ...List.generate(
-                        5,
+                        review.rating,
                         (_) => const Icon(
                           Icons.star,
                           size: 15,
@@ -643,10 +540,10 @@ class _ReviewTile extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        date,
+                        review.dateLabel,
                         style: const TextStyle(
                           fontSize: 14,
-                          color: GuideDetailScreen._textSecondary,
+                          color: _GuideDetailScreenState._textSecondary,
                         ),
                       ),
                     ],
@@ -658,10 +555,10 @@ class _ReviewTile extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          review,
+          review.review,
           style: const TextStyle(
             fontSize: 14,
-            color: GuideDetailScreen._textPrimary,
+            color: _GuideDetailScreenState._textPrimary,
             height: 1.5,
           ),
         ),
