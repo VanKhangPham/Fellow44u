@@ -21,7 +21,8 @@ class _CreateNewTripScreenState extends State<CreateNewTripScreen> {
     'My Khe Beach',
   };
 
-  static const String _languageAsset = 'assets/images/create_new_trip/Union.png';
+  static const String _languageAsset =
+      'assets/images/create_new_trip/Union.png';
   static const String _dragonBridgeAsset =
       'assets/images/create_new_trip/51414a035e8038967a7f919ee4da7a5fcf080c96.jpg';
   static const String _chamMuseumAsset =
@@ -79,9 +80,8 @@ class _CreateNewTripScreenState extends State<CreateNewTripScreen> {
   Future<void> _openNewAttractions() async {
     final result = await Navigator.of(context).push<Set<String>>(
       MaterialPageRoute(
-        builder: (context) => NewAttractionsScreen(
-          initialSelection: _selectedAttractions,
-        ),
+        builder: (context) =>
+            NewAttractionsScreen(initialSelection: _selectedAttractions),
       ),
     );
     if (result != null) {
@@ -140,7 +140,8 @@ class _CreateNewTripScreenState extends State<CreateNewTripScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(tempSelection),
+                        onPressed: () =>
+                            Navigator.of(context).pop(tempSelection),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: CreateNewTripScreen.primary,
                           elevation: 0,
@@ -337,7 +338,9 @@ class _CreateNewTripScreenState extends State<CreateNewTripScreen> {
                           alignment: Alignment.center,
                           decoration: const BoxDecoration(
                             border: Border(
-                              bottom: BorderSide(color: CreateNewTripScreen.border),
+                              bottom: BorderSide(
+                                color: CreateNewTripScreen.border,
+                              ),
                             ),
                           ),
                           child: Text(
@@ -403,20 +406,25 @@ class _CreateNewTripScreenState extends State<CreateNewTripScreen> {
                         _AttractionCard(
                           title: 'Dragon Bridge',
                           imagePath: _dragonBridgeAsset,
-                          selected:
-                              _selectedAttractions.contains('Dragon Bridge'),
+                          selected: _selectedAttractions.contains(
+                            'Dragon Bridge',
+                          ),
                           onTap: () => _toggleAttraction('Dragon Bridge'),
                         ),
                         _AttractionCard(
                           title: 'Cham Museum',
                           imagePath: _chamMuseumAsset,
-                          selected: _selectedAttractions.contains('Cham Museum'),
+                          selected: _selectedAttractions.contains(
+                            'Cham Museum',
+                          ),
                           onTap: () => _toggleAttraction('Cham Museum'),
                         ),
                         _AttractionCard(
                           title: 'My Khe Beach',
                           imagePath: _myKheBeachAsset,
-                          selected: _selectedAttractions.contains('My Khe Beach'),
+                          selected: _selectedAttractions.contains(
+                            'My Khe Beach',
+                          ),
                           onTap: () => _toggleAttraction('My Khe Beach'),
                         ),
                       ],
@@ -522,10 +530,7 @@ class _TripLine extends StatelessWidget {
           children: [
             Icon(icon, size: 18, color: CreateNewTripScreen.textPrimary),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(fontSize: 16, color: labelColor),
-            ),
+            Text(label, style: TextStyle(fontSize: 16, color: labelColor)),
           ],
         ),
       ),
@@ -622,10 +627,7 @@ class _FeeLine extends StatelessWidget {
 }
 
 class _StepperButton extends StatelessWidget {
-  const _StepperButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _StepperButton({required this.icon, required this.onTap});
 
   final IconData icon;
   final VoidCallback? onTap;
@@ -670,11 +672,7 @@ class _AddAttractionCard extends StatelessWidget {
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.add,
-              size: 34,
-              color: CreateNewTripScreen.primary,
-            ),
+            Icon(Icons.add, size: 34, color: CreateNewTripScreen.primary),
             SizedBox(height: 8),
             Text(
               'Add New',

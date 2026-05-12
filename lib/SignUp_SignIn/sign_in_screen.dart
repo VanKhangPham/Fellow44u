@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-import '../Explore/explore_screen.dart';
+import '../services/auth_services.dart';
 import 'forgot_password_screen.dart';
 import 'sign_up_screen.dart';
 
@@ -23,8 +22,8 @@ class _SignInScreenState extends State<SignInScreen> {
   static const Color _textPrimary = Color(0xFF212121);
   static const Color _textSecondary = Color(0xFF777777);
   static const Color _border = Color(0xFFE0E0E0);
-  static const String _demoEmail = 'demo@fellow4u.com';
-  static const String _demoPassword = '123456';
+  static const String _demoEmail = 'a@gmail.com';
+  static const String _demoPassword = '12345678';
 
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
@@ -382,40 +381,31 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  void _handleSignIn() {
-    final email = _emailController.text.trim().toLowerCase();
-    final password = _passwordController.text.trim();
-
-    if (email != _demoEmail) {
+  void _handleSignIn() async {
+    // Validate
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please use demo email: demo@fellow4u.com'),
-        ),
+        const SnackBar(content: Text('Email and password are required')),
       );
       return;
     }
 
-    if (password.isNotEmpty && password != _demoPassword) {
+    try {
+      // Gọi API sign-in
+      await AuthService.signIn(_emailController.text, _passwordController.text);
+      if (!mounted) return;
+
+      // Nếu thành công, chuyển sang Explore screen
+      Navigator.of(context).pushReplacementNamed('/explore');
+      // hoặc: Navigator.of(context).pushReplacement(
+      //   MaterialPageRoute(builder: (_) => const ExploreScreen()),
+      // );
+    } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Demo password is 123456')));
-      return;
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
-
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 300),
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const ExploreScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          final curved = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOut,
-          );
-          return FadeTransition(opacity: curved, child: child);
-        },
-      ),
-    );
   }
 }
 

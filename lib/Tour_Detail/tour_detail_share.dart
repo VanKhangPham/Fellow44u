@@ -113,9 +113,9 @@ class ShareBottomSheet extends StatelessWidget {
 
   void _handleShare(BuildContext context, String platform) {
     // TODO: Thêm logic chia sẻ thực tế ở đây
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Chia sẻ qua $platform')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Chia sẻ qua $platform')));
     Navigator.pop(context);
   }
 }
@@ -144,7 +144,7 @@ class _ShareButton extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),

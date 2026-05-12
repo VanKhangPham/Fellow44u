@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../services/auth_services.dart';
 import 'sign_in_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -22,6 +23,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
   static const Color _border = Color(0xFFE0E0E0);
 
   String _role = 'traveler';
+  late final TextEditingController _firstNameController;
+  late final TextEditingController _lastNameController;
+  late final TextEditingController _countryController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  late final TextEditingController _confirmPasswordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _firstNameController = TextEditingController();
+    _lastNameController = TextEditingController();
+    _countryController = TextEditingController();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _confirmPasswordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _countryController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,6 +169,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         child: _buildTextField(
                                           label: 'First Name',
                                           hint: 'Yoo',
+                                          controller: _firstNameController,
                                         ),
                                       ),
                                       SizedBox(width: width * 0.08),
@@ -147,6 +177,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         child: _buildTextField(
                                           label: 'Last Name',
                                           hint: 'Jin',
+                                          controller: _lastNameController,
                                         ),
                                       ),
                                     ],
@@ -155,12 +186,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   _buildTextField(
                                     label: 'Country',
                                     hint: 'Country',
+                                    controller: _countryController,
                                   ),
                                   SizedBox(height: height * 0.02),
                                   _buildTextField(
                                     label: 'Email',
                                     hint: 'Type email',
                                     keyboardType: TextInputType.emailAddress,
+                                    controller: _emailController,
                                   ),
                                   SizedBox(height: height * 0.02),
                                   _buildTextField(
@@ -168,12 +201,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     hint: 'Type password',
                                     obscure: true,
                                     helper: 'Password has more than 6 letters',
+                                    controller: _passwordController,
                                   ),
                                   SizedBox(height: height * 0.02),
                                   _buildTextField(
                                     label: 'Confirm Password',
                                     hint: '******',
                                     obscure: true,
+                                    controller: _confirmPasswordController,
                                   ),
                                   SizedBox(height: height * 0.02),
                                   Center(
@@ -204,7 +239,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     width: double.infinity,
                                     height: 48,
                                     child: ElevatedButton(
-                                      onPressed: () {},
+                                      onPressed: _handleSignUp,
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: _primary,
                                         elevation: 0,
@@ -331,6 +366,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Widget _buildTextField({
     required String label,
+    required TextEditingController controller,
     String? hint,
     bool obscure = false,
     String? helper,
@@ -349,6 +385,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         const SizedBox(height: 6),
         TextField(
+          controller: controller,
           obscureText: obscure,
           keyboardType: keyboardType,
           decoration: InputDecoration(
@@ -377,6 +414,39 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
       ],
     );
+  }
+
+  Future<void> _handleSignUp() async {
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+    final fullName = '$firstName $lastName'.trim();
+
+    if (fullName.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all required fields')),
+      );
+      return;
+    }
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      return;
+    }
+
+    try {
+      await AuthService.signUp(fullName, email, password);
+      if (!mounted) return;
+      Navigator.of(context).pushReplacementNamed('/explore');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/tour_detail_model.dart';
 import '../models/tour_schedule_day_model.dart';
-import '../repositories/mock_tour_repository.dart';
+import '../repositories/api_tour_repository.dart';
 import '../repositories/tour_repository.dart';
 import 'tour_detail_share.dart';
 
@@ -10,7 +10,7 @@ class TourDetailScreen extends StatefulWidget {
   const TourDetailScreen({
     super.key,
     required this.tourId,
-    this.repository = const MockTourRepository(),
+    this.repository = const ApiTourRepository(),
   });
 
   final String tourId;
@@ -40,6 +40,12 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
     _detailFuture = widget.repository.fetchTourDetail(widget.tourId);
   }
 
+  void _reload() {
+    setState(() {
+      _detailFuture = widget.repository.fetchTourDetail(widget.tourId);
+    });
+  }
+
   void _showShareBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -64,6 +70,9 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
               return const Center(
                 child: CircularProgressIndicator(color: _primary),
               );
+            }
+            if (snapshot.hasError) {
+              return _buildErrorState();
             }
 
             final detail = snapshot.data;
@@ -204,6 +213,33 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
     );
   }
 
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Unable to load tour details.',
+            style: TextStyle(
+              color: _textPrimary,
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: _reload,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _primary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('RETRY'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildOverview(TourDetailModel detail) {
     final tour = detail.tour;
     return Container(
@@ -291,7 +327,10 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: _SummaryField(label: 'Provider', value: tour.provider),
+                    child: _SummaryField(
+                      label: 'Provider',
+                      value: tour.provider,
+                    ),
                   ),
                   Expanded(
                     child: _SummaryField(
@@ -305,7 +344,10 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: _SummaryField(label: 'Itinerary', value: tour.itinerary),
+                    child: _SummaryField(
+                      label: 'Itinerary',
+                      value: tour.itinerary,
+                    ),
                   ),
                   Expanded(
                     child: _SummaryField(
@@ -348,7 +390,9 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
               children: List.generate(days.length, (index) {
                 final day = days[index];
                 return Padding(
-                  padding: EdgeInsets.only(right: index == days.length - 1 ? 0 : 10),
+                  padding: EdgeInsets.only(
+                    right: index == days.length - 1 ? 0 : 10,
+                  ),
                   child: _DayChip(
                     label: day.label,
                     active: _selectedDay == index,
@@ -497,7 +541,9 @@ class _DayChip extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: active ? Colors.white : _TourDetailScreenState._textSecondary,
+            color: active
+                ? Colors.white
+                : _TourDetailScreenState._textSecondary,
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
@@ -582,7 +628,10 @@ class _PriceRow extends StatelessWidget {
               ),
             ),
           ),
-          const VerticalDivider(width: 1, color: _TourDetailScreenState._border),
+          const VerticalDivider(
+            width: 1,
+            color: _TourDetailScreenState._border,
+          ),
           SizedBox(
             width: 120,
             child: Padding(

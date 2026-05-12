@@ -57,12 +57,12 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                   const CreateNewTripScreen(),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
-                final curved = CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOut,
-                );
-                return FadeTransition(opacity: curved, child: child);
-              },
+                    final curved = CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOut,
+                    );
+                    return FadeTransition(opacity: curved, child: child);
+                  },
             ),
           );
         },
@@ -247,7 +247,9 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(14),
+              ),
               child: SizedBox(
                 height: 136,
                 width: double.infinity,
@@ -513,7 +515,9 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                 const SizedBox(height: 8),
                 _InfoRow(
                   assetPath: myTripsCurrentPersonAsset,
-                  label: needsAnotherGuide ? 'Choose another guide' : item.guideLabel,
+                  label: needsAnotherGuide
+                      ? 'Choose another guide'
+                      : item.guideLabel,
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -549,10 +553,7 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                       ),
                     if (item.showChat) const SizedBox(width: 10),
                     if (item.showPay)
-                      _TripActionButton(
-                        label: 'Pay',
-                        onPressed: () {},
-                      ),
+                      _TripActionButton(label: 'Pay', onPressed: () {}),
                   ],
                 ),
               ],
@@ -878,10 +879,12 @@ class _TripActionButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor:
-              outlined ? Colors.white : MyTripsCurrentScreen.primary,
-          foregroundColor:
-              outlined ? MyTripsCurrentScreen.primary : Colors.white,
+          backgroundColor: outlined
+              ? Colors.white
+              : MyTripsCurrentScreen.primary,
+          foregroundColor: outlined
+              ? MyTripsCurrentScreen.primary
+              : Colors.white,
           side: outlined
               ? const BorderSide(color: MyTripsCurrentScreen.primary)
               : BorderSide.none,

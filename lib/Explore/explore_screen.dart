@@ -8,8 +8,8 @@ import '../models/guide_model.dart';
 import '../models/journey_model.dart';
 import '../models/tour_model.dart';
 import '../models/travel_news_model.dart';
+import '../repositories/api_explore_repository.dart';
 import '../repositories/explore_repository.dart';
-import '../repositories/mock_explore_repository.dart';
 import 'guide_more_screen.dart';
 import 'guide_detail_screen.dart';
 import '../search/search.dart';
@@ -19,7 +19,7 @@ import '../widgets/main_bottom_nav.dart';
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({
     super.key,
-    this.repository = const MockExploreRepository(),
+    this.repository = const ApiExploreRepository(),
   });
 
   final ExploreRepository repository;
@@ -101,9 +101,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           'Best Guides',
           onTap: () {
             Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const GuideMoreScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const GuideMoreScreen()),
             );
           },
         ),
@@ -118,9 +116,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           'Featured Tours',
           onTap: () {
             Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const TourMoreScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const TourMoreScreen()),
             );
           },
         ),
@@ -136,9 +132,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   Widget _buildLoadingState() {
-    return const Center(
-      child: CircularProgressIndicator(color: _primary),
-    );
+    return const Center(child: CircularProgressIndicator(color: _primary));
   }
 
   Widget _buildErrorState() {
@@ -455,9 +449,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => GuideDetailScreen(
-                  guideId: guide.id,
-                ),
+                builder: (context) => GuideDetailScreen(guideId: guide.id),
               ),
             );
           },
@@ -791,9 +783,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         children: List.generate(news.length, (index) {
           final item = news[index];
           return Padding(
-            padding: EdgeInsets.only(
-              bottom: index == news.length - 1 ? 0 : 12,
-            ),
+            padding: EdgeInsets.only(bottom: index == news.length - 1 ? 0 : 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -843,10 +833,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     );
   }
 
-  Widget _buildSectionTitleWithAction(
-    String title, {
-    VoidCallback? onTap,
-  }) {
+  Widget _buildSectionTitleWithAction(String title, {VoidCallback? onTap}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
@@ -883,9 +870,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       currentIndex: 0,
       onTripsTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const MyTripsCurrentScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const MyTripsCurrentScreen()),
         );
       },
     );

@@ -35,42 +35,34 @@ class _OnboardingToursScreenState extends State<OnboardingToursScreen>
     );
 
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _imageSlide = Tween<Offset>(
-      begin: const Offset(-0.08, 0),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
-      ),
-    );
-    _textSlide = Tween<Offset>(
-      begin: const Offset(-0.06, 0),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.15, 0.9, curve: Curves.easeOutCubic),
-      ),
-    );
-    _indicatorSlide = Tween<Offset>(
-      begin: const Offset(-0.04, 0),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.25, 1, curve: Curves.easeOutCubic),
-      ),
-    );
-    _skipSlide = Tween<Offset>(
-      begin: const Offset(-0.03, 0),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.3, 1, curve: Curves.easeOutCubic),
-      ),
-    );
+    _imageSlide = Tween<Offset>(begin: const Offset(-0.08, 0), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
+          ),
+        );
+    _textSlide = Tween<Offset>(begin: const Offset(-0.06, 0), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.15, 0.9, curve: Curves.easeOutCubic),
+          ),
+        );
+    _indicatorSlide =
+        Tween<Offset>(begin: const Offset(-0.04, 0), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.25, 1, curve: Curves.easeOutCubic),
+          ),
+        );
+    _skipSlide = Tween<Offset>(begin: const Offset(-0.03, 0), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.3, 1, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _controller.forward();
   }
@@ -175,8 +167,9 @@ class _OnboardingToursScreenState extends State<OnboardingToursScreen>
                         child: Column(
                           children: [
                             Padding(
-                              padding:
-                                  EdgeInsets.symmetric(horizontal: width * 0.12),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: width * 0.12,
+                              ),
                               child: const Text(
                                 'Many tours around the world',
                                 textAlign: TextAlign.center,
@@ -189,8 +182,9 @@ class _OnboardingToursScreenState extends State<OnboardingToursScreen>
                             ),
                             SizedBox(height: height * 0.015),
                             Padding(
-                              padding:
-                                  EdgeInsets.symmetric(horizontal: width * 0.14),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: width * 0.14,
+                              ),
                               child: const Text(
                                 'Lorem Ipsum is simply dummy text of\n'
                                 'the printing and typesetting industry.',
@@ -211,7 +205,10 @@ class _OnboardingToursScreenState extends State<OnboardingToursScreen>
                       position: _indicatorSlide,
                       child: FadeTransition(
                         opacity: _fade,
-                        child: const OnboardingIndicator(fromIndex: 0, toIndex: 1),
+                        child: const OnboardingIndicator(
+                          fromIndex: 0,
+                          toIndex: 1,
+                        ),
                       ),
                     ),
                     const Spacer(),

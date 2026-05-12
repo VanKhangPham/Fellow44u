@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../models/destination_model.dart';
+import '../repositories/api_destination_repository.dart';
 import '../repositories/destination_repository.dart';
-import '../repositories/mock_destination_repository.dart';
 import 'search_results.dart';
 
 class ExploreSearchModal extends StatefulWidget {
   const ExploreSearchModal({
     super.key,
-    this.destinationRepository = const MockDestinationRepository(),
+    this.destinationRepository = const ApiDestinationRepository(),
   });
 
   final DestinationRepository destinationRepository;
@@ -28,7 +28,8 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
   @override
   void initState() {
     super.initState();
-    _destinationsFuture = widget.destinationRepository.fetchPopularDestinations();
+    _destinationsFuture = widget.destinationRepository
+        .fetchPopularDestinations();
   }
 
   @override
@@ -101,7 +102,8 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
                     return _buildErrorState();
                   }
 
-                  final destinations = snapshot.data ?? const <DestinationModel>[];
+                  final destinations =
+                      snapshot.data ?? const <DestinationModel>[];
                   return _searchController.text.isEmpty
                       ? _buildPopularDestinations(destinations)
                       : _buildSearchResults(destinations);
@@ -162,9 +164,11 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
 
   Widget _buildSearchResults(List<DestinationModel> destinations) {
     final results = destinations
-        .where((destination) => destination.name
-            .toLowerCase()
-            .contains(_searchController.text.toLowerCase()))
+        .where(
+          (destination) => destination.name.toLowerCase().contains(
+            _searchController.text.toLowerCase(),
+          ),
+        )
         .toList();
 
     if (results.isEmpty) {
@@ -180,10 +184,7 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
             SizedBox(height: 16),
             Text(
               'No results found',
-              style: TextStyle(
-                fontSize: 16,
-                color: _textSecondary,
-              ),
+              style: TextStyle(fontSize: 16, color: _textSecondary),
             ),
           ],
         ),
@@ -205,9 +206,8 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => SearchResultsScreen(
-              destination: destination.name,
-            ),
+            builder: (context) =>
+                SearchResultsScreen(destination: destination.name),
           ),
         );
       },
@@ -216,10 +216,7 @@ class _ExploreSearchModalState extends State<ExploreSearchModal> {
 }
 
 class _DestinationTile extends StatelessWidget {
-  const _DestinationTile({
-    required this.destination,
-    required this.onTap,
-  });
+  const _DestinationTile({required this.destination, required this.onTap});
 
   final String destination;
   final VoidCallback onTap;
@@ -240,10 +237,7 @@ class _DestinationTile extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               destination,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Color(0xFF212121),
-              ),
+              style: const TextStyle(fontSize: 16, color: Color(0xFF212121)),
             ),
           ],
         ),

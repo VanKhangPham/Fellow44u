@@ -73,9 +73,8 @@ class _TripInformationScreenState extends State<TripInformationScreen> {
   Future<void> _openNewAttractions() async {
     final result = await Navigator.of(context).push<Set<String>>(
       MaterialPageRoute(
-        builder: (context) => NewAttractionsScreen(
-          initialSelection: _selectedAttractions,
-        ),
+        builder: (context) =>
+            NewAttractionsScreen(initialSelection: _selectedAttractions),
       ),
     );
     if (result != null) {
@@ -277,31 +276,32 @@ class _TripInformationScreenState extends State<TripInformationScreen> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       children: [
-                        _AddAttractionCard(
-                          onTap: _openNewAttractions,
-                        ),
+                        _AddAttractionCard(onTap: _openNewAttractions),
                         _AttractionCard(
                           title: 'Dragon Bridge',
                           imagePath:
                               'assets/images/trip_information/51414a035e8038967a7f919ee4da7a5fcf080c96.jpg',
-                          selected:
-                              _selectedAttractions.contains('Dragon Bridge'),
+                          selected: _selectedAttractions.contains(
+                            'Dragon Bridge',
+                          ),
                           onTap: () => _toggleAttraction('Dragon Bridge'),
                         ),
                         _AttractionCard(
                           title: 'Cham Museum',
                           imagePath:
                               'assets/images/trip_information/d71237a5361fac18bae734ec580522bee9c8b09a.jpg',
-                          selected:
-                              _selectedAttractions.contains('Cham Museum'),
+                          selected: _selectedAttractions.contains(
+                            'Cham Museum',
+                          ),
                           onTap: () => _toggleAttraction('Cham Museum'),
                         ),
                         _AttractionCard(
                           title: 'My Khe Beach',
                           imagePath:
                               'assets/images/trip_information/3c81e523d054dd0f67c96d6c7dc0d797c5c12c40.jpg',
-                          selected:
-                              _selectedAttractions.contains('My Khe Beach'),
+                          selected: _selectedAttractions.contains(
+                            'My Khe Beach',
+                          ),
                           onTap: () => _toggleAttraction('My Khe Beach'),
                         ),
                       ],
@@ -329,7 +329,8 @@ class _TripInformationScreenState extends State<TripInformationScreen> {
                                       item,
                                       style: const TextStyle(
                                         fontSize: 14,
-                                        color: TripInformationScreen.textPrimary,
+                                        color:
+                                            TripInformationScreen.textPrimary,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -404,10 +405,7 @@ class _InputLine extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: TripInformationScreen.textPrimary),
           const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(fontSize: 16, color: labelColor),
-          ),
+          Text(label, style: TextStyle(fontSize: 16, color: labelColor)),
         ],
       ),
     );
@@ -472,11 +470,7 @@ class _AddAttractionCard extends StatelessWidget {
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.add,
-              size: 34,
-              color: TripInformationScreen.primary,
-            ),
+            Icon(Icons.add, size: 34, color: TripInformationScreen.primary),
             SizedBox(height: 8),
             Text(
               'Add New',

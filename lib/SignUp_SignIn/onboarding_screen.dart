@@ -57,8 +57,10 @@ class OnboardingScreen extends StatelessWidget {
                           Positioned(
                             top: imageHeight * 0.05,
                             left: width * 0.18,
-                            child:
-                                SvgPicture.asset(blobAsset, width: blobWidth),
+                            child: SvgPicture.asset(
+                              blobAsset,
+                              width: blobWidth,
+                            ),
                           ),
                           Positioned(
                             left: width * 0.23,

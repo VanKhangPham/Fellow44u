@@ -52,9 +52,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
           return Stack(
             children: [
-              const Positioned.fill(
-                child: ColoredBox(color: Colors.white),
-              ),
+              const Positioned.fill(child: ColoredBox(color: Colors.white)),
               Positioned(
                 top: 0,
                 left: 0,
@@ -152,8 +150,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         backgroundColor: _primary,
                                         elevation: 0,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                       ),
                                       child: const Text(
@@ -214,9 +213,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   void _handleSend() {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter your email')));
       return;
     }
 
@@ -225,12 +224,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         transitionDuration: const Duration(milliseconds: 280),
         pageBuilder: (context, animation, secondaryAnimation) =>
             const CheckEmailScreen(),
-        transitionsBuilder: (
-          context,
-          animation,
-          secondaryAnimation,
-          child,
-        ) {
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final curved = CurvedAnimation(
             parent: animation,
             curve: Curves.easeOut,
@@ -286,12 +280,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         transitionDuration: const Duration(milliseconds: 280),
         pageBuilder: (context, animation, secondaryAnimation) =>
             const SignInScreen(),
-        transitionsBuilder: (
-          context,
-          animation,
-          secondaryAnimation,
-          child,
-        ) {
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final curved = CurvedAnimation(
             parent: animation,
             curve: Curves.easeOut,
@@ -312,12 +301,7 @@ class _ForgotPasswordCurveClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     final path = Path();
     path.moveTo(0, curveHeight);
-    path.quadraticBezierTo(
-      size.width * 0.5,
-      0,
-      size.width,
-      curveHeight,
-    );
+    path.quadraticBezierTo(size.width * 0.5, 0, size.width, curveHeight);
     path.lineTo(size.width, size.height);
     path.lineTo(0, size.height);
     path.close();

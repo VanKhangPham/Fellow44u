@@ -32,14 +32,6 @@ const mockAttractions = [
     name: 'Cong Hoa Market',
     city: 'Danang',
   ),
-  AttractionModel(
-    id: 'cong-cho',
-    name: 'Cong Cho',
-    city: 'Danang',
-  ),
-  AttractionModel(
-    id: 'cong-church',
-    name: 'Cong Church',
-    city: 'Danang',
-  ),
+  AttractionModel(id: 'cong-cho', name: 'Cong Cho', city: 'Danang'),
+  AttractionModel(id: 'cong-church', name: 'Cong Church', city: 'Danang'),
 ];

@@ -7,7 +7,9 @@ class MockAttractionRepository implements AttractionRepository {
 
   @override
   Future<List<AttractionModel>> fetchSuggestedAttractions() {
-    return Future.value(mockAttractions.where((item) => item.isSuggested).toList());
+    return Future.value(
+      mockAttractions.where((item) => item.isSuggested).toList(),
+    );
   }
 
   @override

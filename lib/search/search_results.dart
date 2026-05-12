@@ -7,14 +7,14 @@ import '../models/guide_model.dart';
 import '../models/search_filter_model.dart';
 import '../models/search_results_model.dart';
 import '../models/tour_model.dart';
-import '../repositories/mock_search_repository.dart';
+import '../repositories/api_search_repository.dart';
 import '../repositories/search_repository.dart';
 
 class SearchResultsScreen extends StatefulWidget {
   const SearchResultsScreen({
     super.key,
     required this.destination,
-    this.searchRepository = const MockSearchRepository(),
+    this.searchRepository = const ApiSearchRepository(),
   });
 
   final String destination;
@@ -268,10 +268,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
     if (guides.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
-        child: Text(
-          'No guides found',
-          style: TextStyle(color: _textSecondary),
-        ),
+        child: Text('No guides found', style: TextStyle(color: _textSecondary)),
       );
     }
 
@@ -318,9 +315,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withOpacity(0),
-                          Colors.black.withOpacity(0.18),
-                          Colors.black.withOpacity(0.36),
+                          Colors.black.withValues(alpha: 0),
+                          Colors.black.withValues(alpha: 0.18),
+                          Colors.black.withValues(alpha: 0.36),
                         ],
                       ),
                     ),
@@ -384,10 +381,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
     if (tours.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
-        child: Text(
-          'No tours found',
-          style: TextStyle(color: _textSecondary),
-        ),
+        child: Text('No tours found', style: TextStyle(color: _textSecondary)),
       );
     }
 
@@ -420,18 +414,16 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [
-            BoxShadow(
-              color: _cardShadow,
-              blurRadius: 16,
-              offset: Offset(0, 6),
-            ),
+            BoxShadow(color: _cardShadow, blurRadius: 16, offset: Offset(0, 6)),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: Stack(
                 children: [
                   Image.asset(
@@ -447,9 +439,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withOpacity(0.06),
-                            Colors.black.withOpacity(0),
-                            Colors.black.withOpacity(0.35),
+                            Colors.black.withValues(alpha: 0.06),
+                            Colors.black.withValues(alpha: 0),
+                            Colors.black.withValues(alpha: 0.35),
                           ],
                         ),
                       ),
@@ -569,10 +561,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
     );
   }
 
-  Widget _buildTourMetaRow({
-    required IconData icon,
-    required String label,
-  }) {
+  Widget _buildTourMetaRow({required IconData icon, required String label}) {
     return Row(
       children: [
         Icon(icon, size: 15, color: const Color(0xFFB1B1B1)),
@@ -670,7 +659,11 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.close, size: 24, color: Color(0xFF212121)),
+                    child: const Icon(
+                      Icons.close,
+                      size: 24,
+                      color: Color(0xFF212121),
+                    ),
                   ),
                 ],
               ),
@@ -683,7 +676,9 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: _selectedTab == 0 ? const Color(0xFF00C7A7) : Colors.white,
+                          color: _selectedTab == 0
+                              ? const Color(0xFF00C7A7)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(10),
                           border: _selectedTab == 1
                               ? Border.all(color: const Color(0xFFE0E0E0))
@@ -711,7 +706,9 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: _selectedTab == 1 ? const Color(0xFF00C7A7) : Colors.white,
+                          color: _selectedTab == 1
+                              ? const Color(0xFF00C7A7)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(10),
                           border: _selectedTab == 0
                               ? Border.all(color: const Color(0xFFE0E0E0))
@@ -786,7 +783,9 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF00C7A7) : Colors.white,
+                        color: isSelected
+                            ? const Color(0xFF00C7A7)
+                            : Colors.white,
                         border: Border.all(
                           color: isSelected
                               ? const Color(0xFF00C7A7)

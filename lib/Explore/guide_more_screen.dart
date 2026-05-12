@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../models/guide_model.dart';
+import '../repositories/api_guide_repository.dart';
 import '../repositories/guide_repository.dart';
-import '../repositories/mock_guide_repository.dart';
 import '../search/search.dart';
 import 'explore_more_header.dart';
 import 'guide_detail_screen.dart';
@@ -10,7 +10,7 @@ import 'guide_detail_screen.dart';
 class GuideMoreScreen extends StatefulWidget {
   const GuideMoreScreen({
     super.key,
-    this.repository = const MockGuideRepository(),
+    this.repository = const ApiGuideRepository(),
   });
 
   final GuideRepository repository;
@@ -42,6 +42,12 @@ class _GuideMoreScreenState extends State<GuideMoreScreen> {
     );
   }
 
+  void _reload() {
+    setState(() {
+      _guidesFuture = widget.repository.fetchAllGuides();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).padding.bottom;
@@ -57,14 +63,21 @@ class _GuideMoreScreenState extends State<GuideMoreScreen> {
                 child: CircularProgressIndicator(color: _primary),
               );
             }
+            if (snapshot.hasError) {
+              return _buildErrorState();
+            }
 
             final guides = snapshot.data ?? const <GuideModel>[];
+            if (guides.isEmpty) {
+              return _buildEmptyState();
+            }
             return ListView(
               padding: EdgeInsets.zero,
               children: [
                 ExploreMoreHeader(
                   heroAsset: _heroAsset,
-                  title: 'Book your own private local Guide and explore the city',
+                  title:
+                      'Book your own private local Guide and explore the city',
                   onBack: () => Navigator.of(context).pop(),
                   onSearchTap: () => _openSearch(context),
                 ),
@@ -187,10 +200,7 @@ class _GuideMoreScreenState extends State<GuideMoreScreen> {
                     Expanded(
                       child: Text(
                         guide.location,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: _primary,
-                        ),
+                        style: const TextStyle(fontSize: 12, color: _primary),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -200,6 +210,45 @@ class _GuideMoreScreenState extends State<GuideMoreScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Unable to load guides.',
+              style: TextStyle(
+                color: _textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _reload,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _primary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('RETRY'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return const Center(
+      child: Text(
+        'No guides available.',
+        style: TextStyle(color: _textPrimary, fontSize: 16),
       ),
     );
   }

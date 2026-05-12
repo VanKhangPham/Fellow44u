@@ -128,54 +128,36 @@ class _SplashScreenState extends State<SplashScreen> {
                   Positioned(
                     left: dx(24),
                     top: dy(70),
-                    child: SvgPicture.asset(
-                      _cloudTiny,
-                      width: dx(78),
-                    ),
+                    child: SvgPicture.asset(_cloudTiny, width: dx(78)),
                   ),
                   Positioned(
                     right: dx(28),
                     top: dy(90),
-                    child: SvgPicture.asset(
-                      _cloudMain,
-                      width: dx(96),
-                    ),
+                    child: SvgPicture.asset(_cloudMain, width: dx(96)),
                   ),
                   Positioned(
                     right: dx(52),
                     top: dy(190),
-                    child: SvgPicture.asset(
-                      _cloudSmall,
-                      width: dx(92),
-                    ),
+                    child: SvgPicture.asset(_cloudSmall, width: dx(92)),
                   ),
 
                   // Plane and dashed path
                   Positioned(
                     left: dx(10),
                     top: dy(150),
-                    child: SvgPicture.asset(
-                      _path,
-                      width: dx(320),
-                    ),
+                    child: SvgPicture.asset(_path, width: dx(320)),
                   ),
                   Positioned(
                     left: dx(230),
                     top: dy(160),
-                    child: SvgPicture.asset(
-                      _plane,
-                      width: dx(70),
-                    ),
+                    child: SvgPicture.asset(_plane, width: dx(70)),
                   ),
 
                   // Logo
                   Positioned(
                     left: dx(85),
                     top: dy(320),
-                    child: SvgPicture.asset(
-                      _logo,
-                      width: dx(205),
-                    ),
+                    child: SvgPicture.asset(_logo, width: dx(205)),
                   ),
 
                   // Bottom ground
@@ -183,48 +165,33 @@ class _SplashScreenState extends State<SplashScreen> {
                     left: dx(0),
                     right: dx(0),
                     bottom: dy(0),
-                    child: SvgPicture.asset(
-                      _ground,
-                      fit: BoxFit.cover,
-                    ),
+                    child: SvgPicture.asset(_ground, fit: BoxFit.cover),
                   ),
 
                   // Right plant
                   Positioned(
                     right: dx(-6),
                     bottom: dy(-12),
-                    child: SvgPicture.asset(
-                      _rightPlant,
-                      width: dx(150),
-                    ),
+                    child: SvgPicture.asset(_rightPlant, width: dx(150)),
                   ),
 
                   // Left plants
                   Positioned(
                     left: dx(16),
                     bottom: dy(-6),
-                    child: SvgPicture.asset(
-                      _leftPlantTall,
-                      width: dx(66),
-                    ),
+                    child: SvgPicture.asset(_leftPlantTall, width: dx(66)),
                   ),
                   Positioned(
                     left: dx(0),
                     bottom: dy(-2),
-                    child: SvgPicture.asset(
-                      _leftPlantShort,
-                      width: dx(58),
-                    ),
+                    child: SvgPicture.asset(_leftPlantShort, width: dx(58)),
                   ),
 
                   // Hat on ground
                   Positioned(
                     right: dx(70),
                     bottom: dy(58),
-                    child: SvgPicture.asset(
-                      _hat,
-                      width: dx(110),
-                    ),
+                    child: SvgPicture.asset(_hat, width: dx(110)),
                   ),
                 ],
               );

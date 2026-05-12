@@ -65,9 +65,10 @@ class _OnboardingIndicatorState extends State<OnboardingIndicator>
   Animation<double> _buildTween(int from, int to) {
     final clampedFrom = from.clamp(0, _count - 1).toDouble();
     final clampedTo = to.clamp(0, _count - 1).toDouble();
-    return Tween<double>(begin: clampedFrom, end: clampedTo).animate(
-      CurvedAnimation(parent: _controller, curve: widget.curve),
-    );
+    return Tween<double>(
+      begin: clampedFrom,
+      end: clampedTo,
+    ).animate(CurvedAnimation(parent: _controller, curve: widget.curve));
   }
 
   @override
@@ -106,10 +107,7 @@ class _OnboardingIndicatorState extends State<OnboardingIndicator>
             animation: _position,
             builder: (context, child) {
               final left = _position.value * (_width + _gap);
-              return Positioned(
-                left: left,
-                child: child!,
-              );
+              return Positioned(left: left, child: child!);
             },
             child: Container(
               width: _width,

@@ -4,14 +4,14 @@ import '../Trip/trip_information_screen.dart';
 import '../models/guide_detail_model.dart';
 import '../models/guide_experience_detail_model.dart';
 import '../models/guide_review_model.dart';
+import '../repositories/api_guide_repository.dart';
 import '../repositories/guide_repository.dart';
-import '../repositories/mock_guide_repository.dart';
 
 class GuideDetailScreen extends StatefulWidget {
   const GuideDetailScreen({
     super.key,
     required this.guideId,
-    this.repository = const MockGuideRepository(),
+    this.repository = const ApiGuideRepository(),
   });
 
   final String guideId;
@@ -35,6 +35,12 @@ class _GuideDetailScreenState extends State<GuideDetailScreen> {
     _detailFuture = widget.repository.fetchGuideDetail(widget.guideId);
   }
 
+  void _reload() {
+    setState(() {
+      _detailFuture = widget.repository.fetchGuideDetail(widget.guideId);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,6 +54,9 @@ class _GuideDetailScreenState extends State<GuideDetailScreen> {
               return const Center(
                 child: CircularProgressIndicator(color: _primary),
               );
+            }
+            if (snapshot.hasError) {
+              return _buildErrorState();
             }
 
             final detail = snapshot.data;
@@ -63,11 +72,15 @@ class _GuideDetailScreenState extends State<GuideDetailScreen> {
             return CustomScrollView(
               slivers: [
                 SliverToBoxAdapter(child: _buildHeader(context, detail)),
-                SliverToBoxAdapter(child: _buildProfileSection(context, detail)),
+                SliverToBoxAdapter(
+                  child: _buildProfileSection(context, detail),
+                ),
                 SliverToBoxAdapter(child: _buildMediaPreview(detail)),
                 SliverToBoxAdapter(child: _buildRateTable()),
                 SliverToBoxAdapter(child: _buildSectionTitle('My Experiences')),
-                SliverToBoxAdapter(child: _buildExperienceCards(detail.experiences)),
+                SliverToBoxAdapter(
+                  child: _buildExperienceCards(detail.experiences),
+                ),
                 SliverToBoxAdapter(child: _buildSectionTitle('Reviews')),
                 SliverToBoxAdapter(child: _buildReviews(detail.reviews)),
                 const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -111,6 +124,33 @@ class _GuideDetailScreenState extends State<GuideDetailScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Unable to load guide details.',
+            style: TextStyle(
+              color: _textPrimary,
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: _reload,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _primary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('RETRY'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -513,7 +553,10 @@ class _ReviewTile extends StatelessWidget {
       children: [
         Row(
           children: [
-            CircleAvatar(radius: 24, backgroundImage: AssetImage(review.avatarPath)),
+            CircleAvatar(
+              radius: 24,
+              backgroundImage: AssetImage(review.avatarPath),
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

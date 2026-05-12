@@ -155,8 +155,9 @@ class _NewAttractionsScreenState extends State<NewAttractionsScreen> {
                             onTap: query.isEmpty ? null : _addCurrentQuery,
                             child: CircleAvatar(
                               radius: 16,
-                              backgroundColor:
-                                  query.isEmpty ? const Color(0xFFE2E2E2) : _primary,
+                              backgroundColor: query.isEmpty
+                                  ? const Color(0xFFE2E2E2)
+                                  : _primary,
                               child: const Icon(Icons.add, color: Colors.white),
                             ),
                           ),
@@ -167,7 +168,8 @@ class _NewAttractionsScreenState extends State<NewAttractionsScreen> {
                     FutureBuilder<List<AttractionModel>>(
                       future: _suggestionsFuture,
                       builder: (context, snapshot) {
-                        final suggestions = snapshot.data ?? const <AttractionModel>[];
+                        final suggestions =
+                            snapshot.data ?? const <AttractionModel>[];
                         if (snapshot.connectionState != ConnectionState.done) {
                           return const Padding(
                             padding: EdgeInsets.all(24),

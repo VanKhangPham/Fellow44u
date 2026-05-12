@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../Tour_Detail/tour_detail_screen.dart';
 import '../models/tour_model.dart';
-import '../repositories/mock_tour_repository.dart';
+import '../repositories/api_tour_repository.dart';
 import '../repositories/tour_repository.dart';
 import '../search/search.dart';
 import 'explore_more_header.dart';
@@ -10,7 +10,7 @@ import 'explore_more_header.dart';
 class TourMoreScreen extends StatefulWidget {
   const TourMoreScreen({
     super.key,
-    this.repository = const MockTourRepository(),
+    this.repository = const ApiTourRepository(),
   });
 
   final TourRepository repository;
@@ -44,6 +44,12 @@ class _TourMoreScreenState extends State<TourMoreScreen> {
     );
   }
 
+  void _reload() {
+    setState(() {
+      _toursFuture = widget.repository.fetchAllTours();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).padding.bottom;
@@ -59,8 +65,14 @@ class _TourMoreScreenState extends State<TourMoreScreen> {
                 child: CircularProgressIndicator(color: _primary),
               );
             }
+            if (snapshot.hasError) {
+              return _buildErrorState();
+            }
 
             final tours = snapshot.data ?? const <TourModel>[];
+            if (tours.isEmpty) {
+              return _buildEmptyState();
+            }
             return ListView(
               padding: EdgeInsets.zero,
               children: [
@@ -130,7 +142,9 @@ class _TourMoreScreenState extends State<TourMoreScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(14),
+              ),
               child: Stack(
                 children: [
                   Image.asset(
@@ -280,12 +294,48 @@ class _TourMoreScreenState extends State<TourMoreScreen> {
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(
-            color: _textSecondary,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: _textSecondary, fontSize: 12),
         ),
       ],
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Unable to load tours.',
+              style: TextStyle(
+                color: _textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _reload,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _primary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('RETRY'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return const Center(
+      child: Text(
+        'No tours available.',
+        style: TextStyle(color: _textPrimary, fontSize: 16),
+      ),
     );
   }
 }

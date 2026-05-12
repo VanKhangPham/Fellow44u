@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'Explore/explore_screen.dart';
 import 'SignUp_SignIn/splash_screen.dart';
 
 void main() {
@@ -15,6 +16,7 @@ class Fellow4UApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Fellow4U',
       theme: ThemeData(useMaterial3: true),
+      routes: {'/explore': (context) => const ExploreScreen()},
       home: const SplashScreen(),
     );
   }
