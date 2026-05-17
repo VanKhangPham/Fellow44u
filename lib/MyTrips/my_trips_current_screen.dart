@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../Trip/create_new_trip_screen.dart';
+import '../Trip/trip_information_screen.dart';
 import '../data/mock/mock_my_trips_data.dart';
 import '../models/my_current_trip_model.dart';
 import '../models/my_next_trip_model.dart';
@@ -363,7 +364,13 @@ class _MyTripsCurrentScreenState extends State<MyTripsCurrentScreen> {
                         ),
                         const SizedBox(height: 16),
                         OutlinedButton.icon(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const TripInformationScreen(),
+                              ),
+                            );
+                          },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: MyTripsCurrentScreen.primary,
                             side: const BorderSide(
