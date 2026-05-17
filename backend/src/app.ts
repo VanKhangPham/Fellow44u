@@ -10,6 +10,7 @@ import searchRouter from './modules/search/search.routes';
 import tourRouter from './modules/tours/tour.routes';
 import tripRouter from './modules/trips/trip.routes';
 import wishlistRouter from './modules/wishlist/wishlist.routes';
+import exploreRouter from './modules/explore/explore.routes';
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api/v1/search', searchRouter);
 app.use('/api/v1/attractions', attractionRouter);
 app.use('/api/v1/trips', tripRouter);
 app.use('/api/v1/wishlist', wishlistRouter);
+app.use('/api/v1/explore', exploreRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
